@@ -11,7 +11,15 @@
     "test:all": "turbo run test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
-    "clean": "turbo clean && rm -rf node_modules"
+    "clean": "turbo clean && rm -rf node_modules",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:build": "docker-compose build",
+    "docker:restart": "docker-compose restart",
+    "docker:ps": "docker-compose ps",
+    "start": "bash ./start.sh",
+    "quick-start": "bash ./quick-start.sh"
   },
   "devDependencies": {
     "turbo": "^1.10.16",

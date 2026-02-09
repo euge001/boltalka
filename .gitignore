@@ -5,8 +5,13 @@ build
 coverage
 .env
 .env.local
+.env.docker.local
 *.log
 .DS_Store
 turbo
 .turbo
 pnpm-lock.yaml
+.idea
+.vscode/settings.json
+postgres_data
+.container_data
