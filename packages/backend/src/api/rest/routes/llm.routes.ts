@@ -6,7 +6,7 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import { LLMChainFactory } from '../core/llm';
+import { LLMChainFactory } from '../../../core/llm';
 
 /**
  * Register LLM routes

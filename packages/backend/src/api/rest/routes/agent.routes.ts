@@ -122,7 +122,7 @@ export async function registerAgentRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const result = await executeAgentWorkflow(state, message, metadata);
+      const result = await executeAgentWorkflow(state, message);
 
       // Update agent with new state
       AgentFactory.updateAgent(conversationId, result.state);
@@ -276,7 +276,7 @@ export async function registerAgentRoutes(fastify: FastifyInstance) {
         tools: tools.map((tool) => ({
           name: tool.name,
           description: tool.description,
-          input: tool.schema?.type || 'string',
+          input: tool.inputSchema?.type || 'string',
         })),
         count: tools.length,
         timestamp: new Date(),
