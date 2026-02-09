@@ -2,6 +2,7 @@ import { loadConfig, validateConfig } from './config/app';
 import { createApp } from './config/fastify';
 import { registerHealthCheck } from './api/health';
 import { registerLLMRoutes } from './api/rest/routes/llm.routes';
+import { registerAgentRoutes } from './api/rest/routes/agent.routes';
 import { LLMChainFactory } from './core/llm';
 import logger from './config/logger';
 
@@ -35,6 +36,7 @@ async function bootstrap() {
     // Register routes
     await registerHealthCheck(app, START_TIME, VERSION, config.nodeEnv);
     await registerLLMRoutes(app);
+    await registerAgentRoutes(app);
 
     // Root endpoint
     app.get('/', async (request, reply) => {
