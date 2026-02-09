@@ -13,6 +13,7 @@ export interface Conversation {
   userId: string;
   mode: 'voice' | 'code_expert';
   messages: Message[];
+  title?: string;
   createdAt: Date;
   updatedAt: Date;
 }
