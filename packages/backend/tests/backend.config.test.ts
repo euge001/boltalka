@@ -53,7 +53,7 @@ describe('Backend Configuration (Day 1)', () => {
       expect(content.name).toBe('@boltalka/backend');
       expect(content.version).toBe('2.0.0');
       expect(content.scripts.dev).toBe('ts-node --esm src/main.ts');
-      expect(content.scripts.build).toBe('tsc');
+      expect(content.scripts.build).toBe('tsc && tsc-esm-fix');
       expect(content.dependencies.fastify).toBeDefined();
     });
 

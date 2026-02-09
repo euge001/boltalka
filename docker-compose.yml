@@ -32,7 +32,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      PORT: ${BACKEND_PORT:-3000}
+      PORT: 3000
       HOST: 0.0.0.0
       DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-boltalka}
       JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
@@ -40,7 +40,7 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     ports:
-      - "${BACKEND_PORT:-3000}:3000"
+      - "3002:3000"
     volumes:
       - ./packages/backend/prisma:/app/packages/backend/prisma:ro
     healthcheck:
