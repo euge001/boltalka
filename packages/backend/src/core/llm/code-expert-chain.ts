@@ -5,12 +5,14 @@
  * based on voice input transcriptions.
  *
  * Day 5: LangChain Integration
+ * Day 7: Langfuse Integration
  */
 
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { traceLLMChain } from '../../config/langfuse';
 
 /**
  * Initialize OpenAI LLM for code expertise
@@ -101,6 +103,7 @@ export const executeCodeExpertChain = async (
   options?: CodeGenerationOptions,
 ) => {
   const chain = createCodeExpertChain();
+  const startTime = Date.now();
 
   // Enhance the message with context if provided
   let enhancedMessage = userMessage;
@@ -119,14 +122,27 @@ export const executeCodeExpertChain = async (
       input: enhancedMessage,
     });
 
+    const duration = Date.now() - startTime;
+    const tokens = {
+      input: Math.ceil(enhancedMessage.length / 4),
+      output: Math.ceil(response.length / 4),
+    };
+
+    // Trace LLM execution with Langfuse
+    await traceLLMChain('code_expert', enhancedMessage, response, {
+      tokens,
+      duration,
+      model: 'gpt-4-turbo-preview',
+      temperature: 0.3,
+      language: options?.language,
+      framework: options?.framework,
+    });
+
     return {
       success: true,
       response,
       language: options?.language || 'unspecified',
-      tokens: {
-        input: Math.ceil(enhancedMessage.length / 4),
-        output: Math.ceil(response.length / 4),
-      },
+      tokens,
     };
   } catch (error) {
     console.error('Code expert chain error:', error);

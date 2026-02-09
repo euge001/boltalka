@@ -5,6 +5,7 @@
  * with mode switching and tool integration.
  *
  * Day 6: LangGraph Agents
+ * Day 7: Langfuse Integration
  */
 
 import { AgentState, AgentMessage, AgentDecision, addMessage, updateMode, endConversation } from './state';
@@ -12,6 +13,7 @@ import {
   LLMChainFactory,
   ChainExecutionContext,
 } from '../llm';
+import { traceAgentDecision } from '../../config/langfuse';
 
 /**
  * Process user input and decide next action
@@ -106,6 +108,17 @@ export async function executeAgentWorkflow(
 
   // Decide next action
   const decision = await decideNextAction(currentState, userMessage);
+
+  // Trace agent decision with Langfuse
+  await traceAgentDecision(
+    currentState.conversationId,
+    decision,
+    {
+      messageCount: currentState.messages.length,
+      mode: currentState.mode,
+      userId: currentState.userId,
+    },
+  );
 
   // Handle decision
   if (decision.action === 'switch_mode' && decision.targetMode) {

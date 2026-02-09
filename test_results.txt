@@ -349,3 +349,5 @@
 @boltalka/frontend:test: 
 @boltalka/frontend:test:  PASS  Waiting for file changes...
 @boltalka/frontend:test:        press h to show help, press q to quit
+@boltalka/frontend:test:  ELIFECYCLE  Test failed. See above for more details.
+ ERROR  run failed: command  exited (1)

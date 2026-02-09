@@ -4,6 +4,7 @@ import { registerHealthCheck } from './api/health';
 import { registerLLMRoutes } from './api/rest/routes/llm.routes';
 import { registerAgentRoutes } from './api/rest/routes/agent.routes';
 import { LLMChainFactory } from './core/llm';
+import { initializeLangfuse, flushLangfuse } from './config/langfuse';
 import logger from './config/logger';
 
 const VERSION = '2.0.0';
@@ -33,6 +34,15 @@ async function bootstrap() {
       logger.info(llmInit.message);
     }
 
+    // Initialize Langfuse observability
+    logger.info('Initializing Langfuse observability...');
+    const langfuseInit = initializeLangfuse();
+    if (!langfuseInit.success) {
+      logger.warn('Langfuse initialization warning', langfuseInit);
+    } else {
+      logger.info(langfuseInit.message);
+    }
+
     // Register routes
     await registerHealthCheck(app, START_TIME, VERSION, config.nodeEnv);
     await registerLLMRoutes(app);
@@ -54,6 +64,10 @@ async function bootstrap() {
     // Graceful shutdown
     const gracefulShutdown = async (signal: string) => {
       logger.info(`Received ${signal}, shutting down gracefully`);
+      
+      // Flush Langfuse traces before closing
+      await flushLangfuse();
+      
       await app.close();
       process.exit(0);
     };

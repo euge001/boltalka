@@ -5,12 +5,14 @@
  * context understanding, and natural language generation.
  *
  * Day 5: LangChain Integration
+ * Day 7: Langfuse Integration
  */
 
 import { ChatOpenAI } from '@langchain/openai';
 import { PromptTemplate, ChatPromptTemplate } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { traceLLMChain } from '../../config/langfuse';
 
 /**
  * Initialize OpenAI LLM for conversation
@@ -78,19 +80,31 @@ export const createConversationChain = () => {
  */
 export const executeConversationChain = async (userMessage: string) => {
   const chain = createConversationChain();
+  const startTime = Date.now();
 
   try {
     const response = await chain.invoke({
       input: userMessage,
     });
 
+    const duration = Date.now() - startTime;
+    const tokens = {
+      input: Math.ceil(userMessage.length / 4),
+      output: Math.ceil(response.length / 4),
+    };
+
+    // Trace LLM execution with Langfuse
+    await traceLLMChain('conversation', userMessage, response, {
+      tokens,
+      duration,
+      model: 'gpt-4-turbo-preview',
+      temperature: 0.7,
+    });
+
     return {
       success: true,
       response,
-      tokens: {
-        input: Math.ceil(userMessage.length / 4),
-        output: Math.ceil(response.length / 4),
-      },
+      tokens,
     };
   } catch (error) {
     console.error('Conversation chain error:', error);
