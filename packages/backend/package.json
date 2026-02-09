@@ -11,6 +11,7 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
+    "@boltalka/shared": "workspace:*",
     "fastify": "^4.25.1",
     "@fastify/cors": "^8.4.2",
     "@fastify/jwt": "^6.3.0",

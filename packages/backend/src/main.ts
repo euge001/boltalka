@@ -1,6 +1,8 @@
 import { loadConfig, validateConfig } from './config/app';
 import { createApp } from './config/fastify';
 import { registerHealthCheck } from './api/health';
+import { registerLLMRoutes } from './api/rest/routes/llm.routes';
+import { LLMChainFactory } from './core/llm';
 import logger from './config/logger';
 
 const VERSION = '2.0.0';
@@ -21,8 +23,18 @@ async function bootstrap() {
     // Create Fastify app
     const app = await createApp(config);
 
+    // Initialize LLM chains
+    logger.info('Initializing LLM chains...');
+    const llmInit = LLMChainFactory.initialize();
+    if (!llmInit.success) {
+      logger.warn('LLM initialization warning', llmInit);
+    } else {
+      logger.info(llmInit.message);
+    }
+
     // Register routes
     await registerHealthCheck(app, START_TIME, VERSION, config.nodeEnv);
+    await registerLLMRoutes(app);
 
     // Root endpoint
     app.get('/', async (request, reply) => {
