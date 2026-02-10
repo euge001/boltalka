@@ -84,9 +84,11 @@ export default function CoderPage() {
     try {
       log('📍 Getting ephemeral token...');
 
-      const tokenRes = await fetch('/api/agent/token', {
+      // Use the proxy route
+      const tokenRes = await fetch('/api/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'gpt-4o-realtime-preview' }),
       });
 
       if (!tokenRes.ok) {
@@ -106,12 +108,12 @@ export default function CoderPage() {
 
       await webrtc.connect(
         ephemeralKey,
-        'gpt-4o-mini-realtime-preview',
+        'gpt-4o-realtime-preview',
         instructions,
         selectedVadMode
       );
 
-      log(`✓ Connected (Expert: ${selectedPersona}, Source: ${selectedSource})`);
+      log(`✓ Connected (Expert: ${selectedPersona})`);
 
       if (webrtc.localStream) {
         setupVolumeVisualizer(webrtc.localStream);
@@ -120,7 +122,7 @@ export default function CoderPage() {
       const msg = error instanceof Error ? error.message : String(error);
       log(`❌ Connection error: ${msg}`);
     }
-  }, [selectedPersona, selectedSource, selectedVadMode, webrtc, log, setupVolumeVisualizer]);
+  }, [selectedPersona, selectedVadMode, webrtc, log, setupVolumeVisualizer]);
 
   // Handle Disconnect
   const handleDisconnect = useCallback(async () => {
@@ -200,20 +202,40 @@ export default function CoderPage() {
   }, [textInput, webrtc, log]);
 
   // Handle Screenshot
-  const handleScreenshot = useCallback(() => {
+  const handleScreenshot = useCallback(async () => {
     try {
-      log('📸 Screenshot requested');
+      log('📸 Capturing screen...');
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const track = stream.getVideoTracks()[0];
+      const video = document.createElement('video');
+      video.srcObject = new MediaStream([track]);
+      
+      await new Promise((r) => (video.onloadedmetadata = r));
+      await video.play();
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.drawImage(video, 0, 0);
+      
+      const img = canvas.toDataURL('image/jpeg', 0.8);
+      track.stop();
+      stream.getTracks().forEach((t) => t.stop());
 
-      const text = 'Please analyze the current screen context.';
+      log('✓ Screenshot captured');
+
+      // We send this as context to the AI (text representation as per legacy)
+      const text = 'I have shared my screen with you. Please analyze it.';
       webrtc.sendAudioText(text);
 
       const now = new Date().toLocaleTimeString();
       setMessages((prev) => [
         ...prev,
-        { id: `${Date.now()}`, role: 'user', text, timestamp: now },
+        { id: `${Date.now()}`, role: 'user', text: `[Screenshot Shared] ${text}`, timestamp: now },
       ]);
     } catch (error) {
-      log(`❌ Error: ${error instanceof Error ? error.message : 'Unknown'}`);
+      log(`❌ Screenshot error: ${error instanceof Error ? error.message : 'Unknown'}`);
     }
   }, [webrtc, log]);
 

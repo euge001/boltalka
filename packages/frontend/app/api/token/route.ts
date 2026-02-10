@@ -1,12 +1,14 @@
 // Proxy to backend for token generation
 export async function POST(request: Request) {
   try {
+    const body = await request.json().catch(() => ({}));
+
     const response = await fetch('http://localhost:3002/api/agent/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: '{}',
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
