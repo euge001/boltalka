@@ -7,7 +7,7 @@
  * Day 6: LangGraph Agents
  */
 
-import { AgentState } from './state';
+import { AgentState, createInitialState } from './state';
 
 export {
   AgentState,
@@ -39,7 +39,6 @@ export class AgentFactory {
    * Create a new agent/conversation
    */
   static createAgent(conversationId: string, userId?: string) {
-    const { createInitialState } = require('./state');
     const state = createInitialState(conversationId, 'conversation', userId);
     this.agents.set(conversationId, state);
     return state;

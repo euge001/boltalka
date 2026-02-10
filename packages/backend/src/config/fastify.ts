@@ -15,8 +15,9 @@ export async function createApp(config: AppConfig) {
 
   // Register plugins
   await app.register(fastifyCors, {
-    origin: config.corsOrigin,
+    origin: true, // Allow all origins in development
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
 
   await app.register(fastifyJwt, {

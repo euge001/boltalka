@@ -1,6 +1,6 @@
-# 🚀 Краткая справка: Миграция на AI-native стек
+# 🚀 Quick Guide: Migration to AI-native Stack
 
-## Текущее → Целевое (основные замены)
+## Current → Target (main replacements)
 
 ### **Frontend: HTML → React + Next.js**
 ```
@@ -8,7 +8,7 @@ CURRENT                          │  TARGET
 ─────────────────────────────────┼──────────────────────────
 index.html (vanilla JS)          →  app/boltalka/page.tsx (React)
 coder.html (vanilla JS)          →  app/coder/page.tsx (React)
-app.js (440+ строк DOM logic)    →  hooks/useVoiceRecorder.ts
+app.js (440+ lines DOM logic)    →  hooks/useVoiceRecorder.ts
                                     hooks/useAIChat.ts
                                     components/VoiceRecorder.tsx
 ```
@@ -60,17 +60,17 @@ TARGET
 const transcriptionChain = createTranscriptionChain();
 const codeExpertAgent = new CodeExpertAgent();
 
-// Более контролируемо с Langfuse трассировкой
+// More controllable with Langfuse tracing
 const response = await codeExpertAgent.invoke({
   input: audioBlob,
   metadata: { userId, sessionId }
 });
-// Автоматически логируется в Langfuse dashboard
+// Automatically logged to Langfuse dashboard
 ```
 
 ---
 
-## 📦 Ключевые новые пакеты
+## 📦 Key New Packages
 
 ### Backend
 ```bash
@@ -135,9 +135,9 @@ npm install typescript
 
 ---
 
-## 🔄 Миграция основных компонентов
+## 🔄 Migration of Core Components
 
-### 1. **Conversation State** (текущее)
+### 1. **Conversation State** (current)
 ```javascript
 // app.js
 let appConfig = null;
@@ -152,7 +152,7 @@ function setStatus(text) {
 }
 ```
 
-### 1. **Conversation State** (целевое)
+### 1. **Conversation State** (target)
 ```typescript
 // src/store/conversation.store.ts
 import { create } from 'zustand';
@@ -180,9 +180,9 @@ export const useConversationStore = create<ConversationState>((set) => ({
 
 ---
 
-### 2. **Voice Recording** (текущее)
+### 2. **Voice Recording** (current)
 ```javascript
-// app.js - 100+ строк
+// app.js - 100+ lines
 async function startRecording() {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   // manual setup MediaRecorder
@@ -192,7 +192,7 @@ async function startRecording() {
 }
 ```
 
-### 2. **Voice Recording** (целевое)
+### 2. **Voice Recording** (target)
 ```typescript
 // src/hooks/useVoiceRecorder.ts
 export const useVoiceRecorder = () => {
@@ -224,7 +224,7 @@ export const useVoiceRecorder = () => {
 
 ---
 
-### 3. **Token Endpoint** (текущее)
+### 3. **Token Endpoint** (current)
 ```php
 <?php
 // token.php
@@ -236,7 +236,7 @@ echo json_encode($response);
 ?>
 ```
 
-### 3. **Token Endpoint** (целевое)
+### 3. **Token Endpoint** (target)
 ```typescript
 // src/api/rest/routes/auth.routes.ts
 export async function authRoutes(fastify: FastifyInstance) {
@@ -266,7 +266,7 @@ export const authTypeDefs = gql`
 
 ---
 
-### 4. **Chat Message** (текущое)
+### 4. **Chat Message** (current)
 ```javascript
 // chat.php
 $messages = json_decode($_POST['messages']);
@@ -283,7 +283,7 @@ $response = $client->chat()->create([
 echo json_encode(['content' => $response->choices[0]->message->content]);
 ```
 
-### 4. **Chat Message** (целевое)
+### 4. **Chat Message** (target)
 ```typescript
 // src/core/llm/chains/conversation-chain.ts
 import { ChatOpenAI } from "@langchain/openai";
@@ -336,7 +336,7 @@ export const chatResolvers = {
   }
 };
 
-// или REST endpoint
+// or REST endpoint
 // src/api/rest/controller/chat.controller.ts
 export const chatController = {
   sendMessage: async (request: FastifyRequest<{ Body: SendMessageRequest }>) => {
@@ -351,7 +351,7 @@ export const chatController = {
 
 ---
 
-## 📊 Сравнение архитектур
+## 📊 Architecture Comparison
 
 ### Current (PHP + Vanilla JS)
 ```
@@ -373,13 +373,13 @@ export const chatController = {
    OpenAI API
 ```
 
-**Проблемы:**
-❌ Смешивание concerns (UI + логика)  
-❌ Нет абстракции над LLM  
-❌ Нет структурированного observability  
-❌ Нет типизации  
-❌ Нет масштабирования  
-❌ Сложно тестировать
+**Problems:**
+❌ Mixing concerns (UI + logic)
+❌ No abstraction over LLM
+❌ No structured observability
+❌ No typing
+❌ No scalability
+❌ Hard to test
 
 ---
 
@@ -438,21 +438,21 @@ export const chatController = {
          └─→ Prometheus
 ```
 
-**Преимущества:**
-✅ Clean separation of concerns  
-✅ Abstraction layer (LangChain)  
-✅ Full observability & tracing  
-✅ Type safety (TypeScript)  
-✅ Production-ready  
-✅ Testable architecture  
-✅ Scalable (horizontal)  
-✅ AI evaluation pipeline  
+**Benefits:**
+✅ Clean separation of concerns
+✅ Abstraction layer (LangChain)
+✅ Full observability & tracing
+✅ Type safety (TypeScript)
+✅ Production-ready
+✅ Testable architecture
+✅ Scalable (horizontal)
+✅ AI evaluation pipeline
 
 ---
 
-## 🎬 Быстрый старт (Phase 1)
+## 🎬 Quick Start (Phase 1)
 
-### 1. Инициализировать monorepo
+### 1. Initialize monorepo
 ```bash
 mkdir boltalka-ai-native && cd boltalka-ai-native
 mkdir -p packages/backend packages/frontend packages/shared
@@ -559,23 +559,23 @@ await fastify.listen({ port: 3000 });
 
 ---
 
-## 📈 Метрики успеха по фазам
+## 📈 Success Metrics by Phase
 
-| Фаза | Метрика | ✅ Успех |
+| Phase | Metric | ✅ Success |
 |------|---------|---------|
-| 1 | Monorepo setup | `turbo run build` работает |
-| 2 | LLM Layer | LangChain chain логируется в Langfuse |
+| 1 | Monorepo setup | `turbo run build` works |
+| 2 | LLM Layer | LangChain chain logged in Langfuse |
 | 3 | API Layer | GraphQL + REST endpoints live |
 | 4 | Data Layer | PostgreSQL + Vector DB connected |
-| 5 | Observability | Traces visible в Jaeger/Datadog |
-| 6 | Frontend | React components работают |
+| 5 | Observability | Traces visible in Jaeger/Datadog |
+| 6 | Frontend | React components work |
 | 7 | Testing | 80%+ coverage achieved |
 | 8 | Infrastructure | Docker build < 5min |
 | 9 | Docs | Architecture doc complete |
 
 ---
 
-## 🚨 Миграция existing data
+## 🚨 Migrating Existing Data
 
 ```typescript
 // scripts/migrate-conversations.ts
@@ -609,13 +609,13 @@ await migrateConversations();
 
 ---
 
-## 📚 Дополнительная информация
+## 📚 Additional Information
 
-Полный план находится в `/REFACTORING_PLAN.md` с:
-- Подробным описанием каждой фазы
-- Примерами кода для всех компонентов
-- Dependencies для каждого слоя
-- Best practices и рекомендации
-- Timeboxing для каждой фазы
+Full plan is located in `/REFACTORING_PLAN.md` with:
+- Detailed description of each phase
+- Code examples for all components
+- Dependencies for each layer
+- Best practices and recommendations
+- Timeboxing for each phase
 
-Начните с **Phase 1** - Setup infrastructure! 🚀
+Start with **Phase 1** - Setup infrastructure! 🚀

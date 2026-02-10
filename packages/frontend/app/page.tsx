@@ -2,19 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuth } from '../hooks/useApiHooks';
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/chat');
-    } else {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
+    router.push('/chat');
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

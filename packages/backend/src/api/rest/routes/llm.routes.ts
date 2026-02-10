@@ -117,20 +117,6 @@ export async function registerLLMRoutes(fastify: FastifyInstance) {
   });
 
   /**
-   * GET /api/llm/health
-   * Check LLM configuration and health
-   */
-  fastify.get<{ Reply: any }>('/api/llm/health', async (request, reply) => {
-    const validation = LLMChainFactory.validateConfiguration();
-
-    return reply.code(validation.isValid ? 200 : 400).send({
-      healthy: validation.isValid,
-      errors: validation.errors,
-      timestamp: new Date(),
-    });
-  });
-
-  /**
    * GET /api/llm/chains
    * List available chains
    */

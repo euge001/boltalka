@@ -15,3 +15,6 @@ pnpm-lock.yaml
 .vscode/settings.json
 postgres_data
 .container_data
+
+# Cleanup artifacts
+.gitignore_artifacts/

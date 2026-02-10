@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { loadConfig, validateConfig } from './config/app';
 import { createApp } from './config/fastify';
 import { registerHealthCheck } from './api/health';

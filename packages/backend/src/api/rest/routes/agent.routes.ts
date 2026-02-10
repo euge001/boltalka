@@ -18,6 +18,64 @@ import {
  */
 export async function registerAgentRoutes(fastify: FastifyInstance) {
   /**
+   * POST /api/agent/token
+   * Generate ephemeral token for OpenAI Realtime WebRTC API
+   *
+   * Response:
+   * {
+   *   "value": "gpt-4-realtime-token-...",
+   *   "expires_at": "2024-01-15T..."
+   * }
+   */
+  fastify.post<{ Body: { model?: string } }>('/api/agent/token', async (request, reply) => {
+    try {
+      const { model = 'gpt-4o-realtime-preview' } = request.body || {};
+      const openaiApiKey = process.env.OPENAI_API_KEY;
+      if (!openaiApiKey) {
+        return reply.code(500).send({
+          success: false,
+          error: 'OpenAI API key not configured',
+        });
+      }
+
+      // Get ephemeral token from OpenAI
+      const tokenResponse = await fetch('https://api.openai.com/v1/realtime/sessions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          voice: 'alloy',
+        }),
+      });
+
+      if (!tokenResponse.ok) {
+        const error = await tokenResponse.text();
+        fastify.log.error({ error }, 'Failed to get OpenAI ephemeral token');
+        return reply.code(500).send({
+          success: false,
+          error: 'Failed to generate token',
+        });
+      }
+
+      const tokenData = await tokenResponse.json() as any;
+
+      return reply.code(200).send({
+        value: tokenData?.client_secret?.value || '',
+        expires_at: tokenData?.expires_at || new Date(),
+      });
+    } catch (error) {
+      fastify.log.error({ error }, 'Token generation failed');
+      return reply.code(500).send({
+        success: false,
+        error: 'Token generation error',
+      });
+    }
+  });
+
+  /**
    * POST /api/agent/start
    * Initialize a new conversation
    *

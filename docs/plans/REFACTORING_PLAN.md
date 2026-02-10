@@ -1,33 +1,33 @@
-# 🔄 План рефакторинга Boltalka под AI-native Tech Lead стек
+# 🔄 Refactoring Plan for Boltalka under AI-native Tech Lead Stack
 
-## 📋 Текущее состояние проекта
+## 📋 Current Project Status
 
 **Boltalka Voice Bot v9.0.0**
-- **Frontend**: HTML5 (ванильный JS) + Bootstrap 5 + WebRTC
+- **Frontend**: HTML5 (vanilla JS) + Bootstrap 5 + WebRTC
 - **Backend**: PHP (Litespeed/Apache/Nginx)
 - **API**: OpenAI Realtime API + Chat Completions API
-- **Функционал**: Два режима (voice-to-voice, voice-to-text/code)
-- **Тестирование**: Jest (minimalный coverage)
-- **Архитектура**: Монолит без четкого разделения слоев
+- **Functionality**: Two modes (voice-to-voice, voice-to-text/code)
+- **Testing**: Jest (minimal coverage)
+- **Architecture**: Monolith without clear layer separation
 
 ---
 
-## 🎯 Целевой стек (по требованиям)
+## 🎯 Target Stack (per requirements)
 
-| Компонент | Текущее | Целевое | Приоритет |
-|-----------|--------|--------|-----------|
-| **Frontend** | HTML5 + Vanilla JS | React 18+ / Next.js 14+ | 🔴 Высокий |
-| **Backend** | PHP | Node.js (Express/Fastify) | 🔴 Высокий |
-| **API Gateway** | REST (implicit) | GraphQL + REST (OpenAPI) | 🟡 Средний |
-| **LLM Orchestration** |직접OpenAI calls | LangChain / LangGraph | 🔴 Высокий |
-| **Database** | - | PostgreSQL + Vector DB (Pinecone/Weaviate) | 🟡 Средний |
-| **Observability** | - | OpenTelemetry + Langfuse | 🟡 Средний |
-| **Infrastructure** | Manual | Docker + CI/CD (GitHub Actions) | 🟡 Средний |
-| **AI Evaluation** | - | Langfuse + Custom metrics | 🟠 Низкий |
+| Component | Current | Target | Priority |
+|-----------|---------|--------|----------|
+| **Frontend** | HTML5 + Vanilla JS | React 18+ / Next.js 14+ | 🔴 High |
+| **Backend** | PHP | Node.js (Express/Fastify) | 🔴 High |
+| **API Gateway** | REST (implicit) | GraphQL + REST (OpenAPI) | 🟡 Medium |
+| **LLM Orchestration** | Direct OpenAI calls | LangChain / LangGraph | 🔴 High |
+| **Database** | - | PostgreSQL + Vector DB (Pinecone/Weaviate) | 🟡 Medium |
+| **Observability** | - | OpenTelemetry + Langfuse | 🟡 Medium |
+| **Infrastructure** | Manual | Docker + CI/CD (GitHub Actions) | 🟡 Medium |
+| **AI Evaluation** | - | Langfuse + Custom metrics | 🟠 Low |
 
 ---
 
-## 📁 Целевая структура проекта
+## 📁 Target Project Structure
 
 ```
 boltalka-ai-native/
@@ -168,16 +168,16 @@ boltalka-ai-native/
 
 ---
 
-## 🚀 План рефакторинга (этапы)
+## 🚀 Refactoring Plan (Phases)
 
-### **ФАЗА 1: Подготовка инфраструктуры (Неделя 1-2)**
+### **PHASE 1: Infrastructure Preparation (Week 1-2)**
 
-#### 1.1 Настройка монорепо и инструментария
-- [ ] Инициализировать pnpm workspace
-- [ ] Настроить Turborepo для сборки/тестирования
-- [ ] Добавить Turbo cache для оптимизации
-- [ ] Настроить TypeScript для всех пакетов
-- [ ] Добавить ESLint + Prettier конфиги
+#### 1.1 Setup monorepo and tooling
+- [ ] Initialize pnpm workspace
+- [ ] Configure Turborepo for build/testing
+- [ ] Add Turbo cache for optimization
+- [ ] Configure TypeScript for all packages
+- [ ] Add ESLint + Prettier configs
 
 **Dependencies:**
 ```json
@@ -193,11 +193,11 @@ boltalka-ai-native/
 }
 ```
 
-#### 1.2 Инициализировать Backend (Node.js)
-- [ ] Создать проект backend на Fastify + TypeScript
-- [ ] Добавить базовую структуру Express-like routing
-- [ ] Настроить конфигурацию для разных env (dev, test, prod)
-- [ ] Добавить базовое логирование (Pino)
+#### 1.2 Initialize Backend (Node.js)
+- [ ] Create backend project on Fastify + TypeScript
+- [ ] Add basic Express-like routing structure
+- [ ] Configure for different environments (dev, test, prod)
+- [ ] Add basic logging (Pino)
 
 **Dependencies:**
 ```json
@@ -213,11 +213,11 @@ boltalka-ai-native/
 }
 ```
 
-#### 1.3 Инициализировать Frontend (React + Next.js)
-- [ ] Создать Next.js 14+ проект с App Router
-- [ ] Настроить TypeScript + ESLint
-- [ ] Добавить Tailwind CSS или Bootstrap интеграцию
-- [ ] Настроить базовую структуру компонентов
+#### 1.3 Initialize Frontend (React + Next.js)
+- [ ] Create Next.js 14+ project with App Router
+- [ ] Configure TypeScript + ESLint
+- [ ] Add Tailwind CSS or Bootstrap integration
+- [ ] Configure basic component structure
 
 **Dependencies:**
 ```json
@@ -233,24 +233,24 @@ boltalka-ai-native/
 }
 ```
 
-#### 1.4 Настроить Docker окружение
-- [ ] Создать Dockerfile для backend (Node.js)
-- [ ] Создать Dockerfile для frontend (Next.js)
-- [ ] Добавить docker-compose.yml для локальной разработки
-- [ ] Добавить PostgreSQL + Redis контейнеры
+#### 1.4 Configure Docker environment
+- [ ] Create Dockerfile for backend (Node.js)
+- [ ] Create Dockerfile for frontend (Next.js)
+- [ ] Add docker-compose.yml for local development
+- [ ] Add PostgreSQL + Redis containers
 
 ---
 
-### **ФАЗА 2: Рефакторинг Backend - LLM слой (Неделя 3-4)**
+### **PHASE 2: Backend Refactoring - LLM Layer (Week 3-4)**
 
-#### 2.1 Установить LangChain + LangGraph экосистему
+#### 2.1 Install LangChain + LangGraph ecosystem
 - [ ] `npm install langchain @langchain/openai @langchain/community`
-- [ ] Создать базовые chains для каждого режима:
+- [ ] Create basic chains for each mode:
   - Voice-to-voice conversation chain
   - Code expert chain (transcription + code generation)
-- [ ] Интегрировать Prompt Templates (переместить из PHP)
+- [ ] Integrate Prompt Templates (migrate from PHP)
 
-**Пример chain structure:**
+**Example chain structure:**
 ```typescript
 // src/core/llm/chains/conversation-chain.ts
 import { LLMChain } from "langchain/chains";
@@ -264,15 +264,15 @@ export const createConversationChain = () => {
 };
 ```
 
-#### 2.2 Создать LangGraph агентов для сложной логики
-- [ ] Voice conversation agent (с историей, контекстом)
-- [ ] Code expert agent (с анализом requirements)
-- [ ] RAG agent (для поиска документации)
+#### 2.2 Create LangGraph agents for complex logic
+- [ ] Voice conversation agent (with history and context)
+- [ ] Code expert agent (with requirements analysis)
+- [ ] RAG agent (for documentation search)
 
-#### 2.3 Интегрировать Vector Store для RAG
-- [ ] Добавить Pinecone/Weaviate/Qdrant как VectorStore
-- [ ] Создать embeddings pipeline (OpenAI embeddings)
-- [ ] Реализовать RAG service для контекстного поиска
+#### 2.3 Integrate Vector Store for RAG
+- [ ] Add Pinecone/Weaviate/Qdrant as VectorStore
+- [ ] Create embeddings pipeline (OpenAI embeddings)
+- [ ] Implement RAG service for context search
 
 **Dependencies:**
 ```json
@@ -287,11 +287,11 @@ export const createConversationChain = () => {
 }
 ```
 
-#### 2.4 Интегрировать Langfuse для трассировки LLM
-- [ ] Добавить Langfuse клиент для всех LLM calls
-- [ ] Логировать: prompts, responses, latency, token usage
-- [ ] Добавить метрики评ки качества (accuracy, relevance)
-- [ ] Создать dashboard для мониторинга
+#### 2.4 Integrate Langfuse for LLM tracing
+- [ ] Add Langfuse client for all LLM calls
+- [ ] Log: prompts, responses, latency, token usage
+- [ ] Add quality metrics (accuracy, relevance)
+- [ ] Create monitoring dashboard
 
 **Dependencies:**
 ```json
@@ -304,18 +304,18 @@ export const createConversationChain = () => {
 
 ---
 
-### **ФАЗА 3: Рефакторинг Backend - API слой (Неделя 5-6)**
+### **PHASE 3: Backend Refactoring - API Layer (Week 5-6)**
 
-#### 3.1 Создать REST API (OpenAPI/Swagger)
-- [ ] Миграция endpoints из PHP в Fastify routes
-- [ ] Реализовать основные endpoints:
+#### 3.1 Create REST API (OpenAPI/Swagger)
+- [ ] Migrate endpoints from PHP to Fastify routes
+- [ ] Implement main endpoints:
   - `POST /api/voice/transcribe` - STT
   - `POST /api/chat/message` - Send message
   - `GET /api/chat/history` - Get conversation history
   - `POST /api/voice/config` - Get voice config
   - `PUT /api/user/settings` - Update settings
 
-**Пример:**
+**Example:**
 ```typescript
 // src/api/rest/routes/chat.routes.ts
 import { FastifyInstance } from "fastify";
@@ -327,15 +327,15 @@ export async function chatRoutes(fastify: FastifyInstance) {
 }
 ```
 
-#### 3.2 Создать GraphQL API
-- [ ] Настроить Apollo Server + Fastify
-- [ ] Определить GraphQL schema:
+#### 3.2 Create GraphQL API
+- [ ] Configure Apollo Server + Fastify
+- [ ] Define GraphQL schema:
   - `Query`: getConversations, getSettings
   - `Mutation`: sendMessage, updateSettings, clearChat
   - `Subscription`: onMessage (realtime)
-- [ ] Создать resolvers для всех операций
+- [ ] Create resolvers for all operations
 
-**Schema пример:**
+**Schema example:**
 ```graphql
 type Query {
   conversation(id: ID!): Conversation
@@ -352,8 +352,8 @@ type Subscription {
 }
 ```
 
-#### 3.3 Создать WebSocket слой
-- [ ] Реализовать WebSocket handler для realtime streaming
+#### 3.3 Create WebSocket layer
+- [ ] Implement WebSocket handler for realtime streaming
 - [ ] Voice audio streaming (binary frames)
 - [ ] Chat messages streaming
 - [ ] Connection lifecycle management
@@ -370,27 +370,27 @@ type Subscription {
 }
 ```
 
-#### 3.4 Добавить Authentication (OAuth2 + JWT)
-- [ ] Реализовать JWT middleware для всех protected routes
-- [ ] Добавить OAuth2 поддержку (Google, GitHub)
-- [ ] Создать refresh token механизм
+#### 3.4 Add Authentication (OAuth2 + JWT)
+- [ ] Implement JWT middleware for all protected routes
+- [ ] Add OAuth2 support (Google, GitHub)
+- [ ] Create refresh token mechanism
 - [ ] Session management
 
 ---
 
-### **ФАЗА 4: Рефакторинг Backend - Data слой (Неделя 7-8)**
+### **PHASE 4: Backend Refactoring - Data Layer (Week 7-8)**
 
-#### 4.1 Настроить PostgreSQL
-- [ ] Создать schema для:
+#### 4.1 Configure PostgreSQL
+- [ ] Create schema for:
   - Users (with OAuth profiles)
   - Conversations
   - Messages
   - User settings
   - Voice configurations
-- [ ] Настроить migrations (TypeORM/Prisma)
-- [ ] Индексы для оптимизации запросов
+- [ ] Configure migrations (TypeORM/Prisma)
+- [ ] Indexes for query optimization
 
-**Пример schema:**
+**Example schema:**
 ```sql
 CREATE TABLE users (
   id UUID PRIMARY KEY,
@@ -416,16 +416,16 @@ CREATE TABLE messages (
 );
 ```
 
-#### 4.2 Интегрировать Vector Database
-- [ ] Настроить Pinecone/Qdrant для embeddings
+#### 4.2 Integrate Vector Database
+- [ ] Configure Pinecone/Qdrant for embeddings
 - [ ] Pipeline: text → embedding → vector store
-- [ ] Indexing стратегия для conversations
-- [ ] Поиск similar conversations для в context
+- [ ] Indexing strategy for conversations
+- [ ] Search similar conversations for context
 
-#### 4.3 Создать ORM layer
-- [ ] Выбрать Prisma или TypeORM
-- [ ] Создать repository pattern для data access
-- [ ] Кэширование часто используемых данных (Redis)
+#### 4.3 Create ORM layer
+- [ ] Choose Prisma or TypeORM
+- [ ] Create repository pattern for data access
+- [ ] Cache frequently used data (Redis)
 
 **Dependencies:**
 ```json
@@ -440,22 +440,22 @@ CREATE TABLE messages (
 
 ---
 
-### **ФАЗА 5: Рефакторинг Backend - Observability (Неделя 9)**
+### **PHASE 5: Backend Refactoring - Observability (Week 9)**
 
-#### 5.1 Настроить OpenTelemetry
-- [ ] Добавить trace provider для всех operations
-- [ ] Instrumentate: HTTP requests, LLM calls, database queries
-- [ ] Экспорт трейсов в OTLP collector
-- [ ] Интеграция с Jaeger/Datadog
+#### 5.1 Configure OpenTelemetry
+- [ ] Add trace provider for all operations
+- [ ] Instrument: HTTP requests, LLM calls, database queries
+- [ ] Export traces to OTLP collector
+- [ ] Integrate with Jaeger/Datadog
 
-#### 5.2 Настроить Prometheus metrics
-- [ ] Счетчики: requests, errors, LLM tokens
-- [ ] Гаджеты: response time, LLM latency
-- [ ] Histogram: distribution анализ
+#### 5.2 Configure Prometheus metrics
+- [ ] Counters: requests, errors, LLM tokens
+- [ ] Gauges: response time, LLM latency
+- [ ] Histogram: distribution analysis
 
-#### 5.3 Интегрировать Datadog (optional)
-- [ ] APM агент для Node.js
-- [ ] RUM для frontend
+#### 5.3 Integrate Datadog (optional)
+- [ ] APM agent for Node.js
+- [ ] RUM for frontend
 - [ ] Log aggregation
 - [ ] Alert management
 
@@ -472,23 +472,23 @@ CREATE TABLE messages (
 }
 ```
 
-#### 5.4 Создать LLM evaluation pipeline
-- [ ] Метрики качества: relevance, coherence, accuracy
-- [ ] Automated testing с Langsmith
-- [ ] A/B testing infrastructure для prompts
-- [ ] Feedback loop от users
+#### 5.4 Create LLM evaluation pipeline
+- [ ] Quality metrics: relevance, coherence, accuracy
+- [ ] Automated testing with Langsmith
+- [ ] A/B testing infrastructure for prompts
+- [ ] User feedback loop integration
 
 ---
 
-### **ФАЗА 6: Рефакторинг Frontend (Неделя 10-12)**
+### **PHASE 6: Frontend Refactoring (Week 10-12)**
 
-#### 6.1 Мигрировать UI с HTML в React компоненты
-- [ ] `VoiceRecorder` компонент (WebRTC)
-- [ ] `ChatWindow` компонент (messages display)
-- [ ] `AudioPlayer` компонент (response playback)
-- [ ] `Settings` компонент (configuration)
+#### 6.1 Migrate UI from HTML to React components
+- [ ] `VoiceRecorder` component (WebRTC)
+- [ ] `ChatWindow` component (messages display)
+- [ ] `AudioPlayer` component (response playback)
+- [ ] `Settings` component (configuration)
 
-**Пример:**
+**Example:**
 ```typescript
 // src/components/voice/VoiceRecorder.tsx
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
@@ -504,20 +504,20 @@ export const VoiceRecorder: React.FC = () => {
 };
 ```
 
-#### 6.2 Создать custom hooks для логики
+#### 6.2 Create custom hooks for logic
 - [ ] `useVoiceRecorder` - Recording + VAD logic
 - [ ] `useAIChat` - Chat state + message handling
 - [ ] `useWebRTC` - WebRTC connection management
 - [ ] `useAuth` - Authentication flow
 
-#### 6.3 Реализовать state management (Zustand)
+#### 6.3 Implement state management (Zustand)
 - [ ] `conversationStore` - Messages, history
 - [ ] `settingsStore` - User preferences
 - [ ] `connectionStore` - WebSocket/API connection status
 
-#### 6.4 Создать API client
+#### 6.4 Create API client
 - [ ] GraphQL client (urql or apollo-client)
-- [ ] REST client для fallback
+- [ ] REST client for fallback
 - [ ] WebSocket client for realtime
 - [ ] Error handling + retry logic
 
@@ -533,13 +533,13 @@ export const VoiceRecorder: React.FC = () => {
 }
 ```
 
-#### 6.5 Добавить правильную обработку асинхронности
+#### 6.5 Add proper async handling
 - [ ] Streaming responses (OpenAI Realtime API)
 - [ ] Audio streaming (WebRTC)
 - [ ] Error boundaries for robust UX
 - [ ] Loading states + skeletons
 
-#### 6.6 Создать две основные страницы
+#### 6.6 Create main pages
 - [ ] `/boltalka` - Voice-to-voice conversation
 - [ ] `/coder` - Code expert (voice-to-code)
 - [ ] `/settings` - User preferences
@@ -547,13 +547,13 @@ export const VoiceRecorder: React.FC = () => {
 
 ---
 
-### **ФАЗА 7: Testing & Quality (Неделя 13)**
+### **PHASE 7: Testing & Quality (Week 13)**
 
-#### 7.1 Backend тестирование
-- [ ] Unit tests для services (Jest)
-- [ ] Integration tests для API endpoints
-- [ ] E2E тесты для komplетных flows
-- [ ] Порог: 80%+ coverage
+#### 7.1 Backend testing
+- [ ] Unit tests for services (Jest)
+- [ ] Integration tests for API endpoints
+- [ ] E2E tests for complete flows
+- [ ] Threshold: 80%+ coverage
 
 **Example:**
 ```typescript
@@ -567,22 +567,22 @@ describe("ConversationChain", () => {
 });
 ```
 
-#### 7.2 Frontend тестирование
+#### 7.2 Frontend testing
 - [ ] Component tests (Vitest + React Testing Library)
 - [ ] Hook tests
 - [ ] Integration tests
-- [ ] Pороговое значение: 75%+ coverage
+- [ ] Coverage threshold: 75%+
 
-#### 7.3 Добавить типизацию
+#### 7.3 Add strict typing
 - [ ] Strict TypeScript mode
-- [ ] Shared types package для frontend/backend
+- [ ] Shared types package for frontend/backend
 - [ ] API contract testing
 
-#### 7.4 Добавить lint + format rules
-- [ ] ESLint с airbnb config
-- [ ] Prettier форматирование
+#### 7.4 Add lint + format rules
+- [ ] ESLint with airbnb config
+- [ ] Prettier formatting
 - [ ] Pre-commit hooks (husky)
-- [ ] CI/CD pipeline для проверок
+- [ ] CI/CD pipeline for checks
 
 **Dependencies:**
 ```json
@@ -601,14 +601,14 @@ describe("ConversationChain", () => {
 
 ---
 
-### **ФАЗА 8: Infrastructure & Deployment (Неделя 14-15)**
+### **PHASE 8: Infrastructure & Deployment (Week 14-15)**
 
 #### 8.1 Docker & Containerization
-- [ ] Optimized Dockerfile для backend (multi-stage)
-- [ ] Optimized Dockerfile для frontend
-- [ ] docker-compose для локальной разработки
+- [ ] Optimized Dockerfile for backend (multi-stage)
+- [ ] Optimized Dockerfile for frontend
+- [ ] docker-compose for local development
 
-**Пример Dockerfile (backend):**
+**Example Dockerfile (backend):**
 ```dockerfile
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -631,7 +631,7 @@ CMD ["node", "dist/main.js"]
 - [ ] Push to registry (Docker Hub / GitHub Packages)
 - [ ] Deploy to staging/production
 
-**Пример workflow:**
+**Example workflow:**
 ```yaml
 name: CI/CD
 
@@ -666,45 +666,45 @@ jobs:
           tags: user/repo:${{ github.sha }}
 ```
 
-#### 8.3 Kubernetes (optional для масштабирования)
+#### 8.3 Kubernetes (optional for scaling)
 - [ ] Service, Deployment manifests
-- [ ] ConfigMaps для конфигурации
-- [ ] Secrets для API ключей
-- [ ] HPA для auto-scaling
+- [ ] ConfigMaps for configuration
+- [ ] Secrets for API keys
+- [ ] HPA for auto-scaling
 
 #### 8.4 Monitoring & Logging Infrastructure
-- [ ] Prometheus + Grafana для metrics
-- [ ] ELK Stack (Elasticsearch, Logstash, Kibana) для логов
-- [ ] Langfuse dashboard для LLM tracking
-- [ ] Alert rules для critical issues
+- [ ] Prometheus + Grafana for metrics
+- [ ] ELK Stack (Elasticsearch, Logstash, Kibana) for logs
+- [ ] Langfuse dashboard for LLM tracking
+- [ ] Alert rules for critical issues
 
 ---
 
-### **ФАЗА 9: Documentation & Handoff (Неделя 16)**
+### **PHASE 9: Documentation & Handoff (Week 16)**
 
-#### 9.1 Техническая документация
+#### 9.1 Technical documentation
 - [ ] ARCHITECTURE.md - System design overview
 - [ ] API.md - REST + GraphQL endpoints
 - [ ] LLM_DESIGN.md - Chain/Agent design decisions
 - [ ] DEPLOYMENT.md - Production deployment guide
 
 #### 9.2 Developer guide
-- [ ] Setup инструкции для нового разработчика
+- [ ] Setup instructions for new developer
 - [ ] Contributing guidelines
 - [ ] Release process documentation
 - [ ] Troubleshooting guide
 
 #### 9.3 Operations guide
-- [ ] Runbook для common issues
+- [ ] Runbook for common issues
 - [ ] Monitoring & alerting setup
 - [ ] Scaling strategy
 - [ ] Disaster recovery procedures
 
 ---
 
-## 📊 Временная шкала
+## 📊 Timeline
 
-| Фаза | Неделя | Основной фокус | Deliverables |
+| Phase | Week | Main Focus | Deliverables |
 |------|--------|---|---|
 | 1 | 1-2 | Infrastructure Setup | Monorepo, Docker, CI/CD basics |
 | 2 | 3-4 | LLM Layer | LangChain chains, Langfuse integration |
@@ -716,11 +716,11 @@ jobs:
 | 8 | 14-15 | Infrastructure | Docker, CI/CD, Kubernetes |
 | 9 | 16 | Documentation | Tech docs, deployment guides |
 
-**Итого: 16 недель** (4 месяца на полный рефакторинг)
+**Total: 16 weeks** (4 months for full refactoring)
 
 ---
 
-## 🎯 Критические метрики успеха
+## 🎯 Critical Success Metrics
 
 ### Backend
 - [ ] 100% TypeScript coverage
@@ -753,7 +753,7 @@ jobs:
 
 ---
 
-## 🛠 Инструменты и библиотеки по категориям
+## 🛠 Tools and Libraries by Category
 
 ### Backend Stack
 ```json
@@ -842,23 +842,23 @@ jobs:
 
 ---
 
-## 🚨 Рекомендации и best practices
+## 🚨 Recommendations and Best Practices
 
-### 1. **Миграция данных**
-- Создать migration script для existing conversations из старого формата
-- Обеспечить data consistency между старой и новой системой
-- Двойная запись (dual-write) в переходный период
+### 1. **Data Migration**
+- Create migration script for existing conversations from old format
+- Ensure data consistency between old and new systems
+- Dual-write strategy during transition period
 
 ### 2. **API Backward Compatibility**
-- Поддерживать старые endpoints в течение 2-3 месяцев
+- Support old endpoints for 2-3 months
 - API versioning strategy (v1, v2)
-- Deprecation warnings в ответах
+- Deprecation warnings in responses
 
 ### 3. **Performance Optimization**
-- Кэширование часто используемых промптов
-- Connection pooling для БД
-- CDN для статических assets
-- Request batching для GraphQL
+- Cache frequently used prompts
+- Connection pooling for database
+- CDN for static assets
+- Request batching for GraphQL
 
 ### 4. **Security**
 - API rate limiting (Token bucket)
@@ -869,33 +869,33 @@ jobs:
 - JWT rotation strategy
 
 ### 5. **Cost Optimization**
-- Token usage tracking для OpenAI API
-- Batch processing для non-realtime requests
+- Token usage tracking for OpenAI API
+- Batch processing for non-realtime requests
 - Model selection logic (gpt-4 vs gpt-4o-mini)
-- Caching хитростей для embeddings
+- Caching strategies for embeddings
 
 ### 6. **Reliability**
 - Error recovery strategies
-- Circuit breaker pattern для external APIs
-- Retry logic с exponential backoff
+- Circuit breaker pattern for external APIs
+- Retry logic with exponential backoff
 - Graceful degradation (fallback modes)
 
 ---
 
-## 🎓 Владение техс-стеком (Checklist)
+## 🎓 Tech Stack Mastery (Checklist)
 
 ### TypeScript & Architecture
-- [ ] Strict typing везде (no `any`)
-- [ ] Repository pattern для data access
-- [ ] Dependency injection для services
+- [ ] Strict typing everywhere (no `any`)
+- [ ] Repository pattern for data access
+- [ ] Dependency injection for services
 - [ ] SOLID principles compliance
 
-### LLM/AI Специфичное
-- [ ] Понимание prompt engineering
-- [ ] Experience с LangChain chains/agents
+### LLM/AI Specifics
+- [ ] Understanding of prompt engineering
+- [ ] Experience with LangChain chains/agents
 - [ ] RAG pipeline implementation
-- [ ] Evaluation metrics для LLM outputs
-- [ ] Token management и cost tracking
+- [ ] Evaluation metrics for LLM outputs
+- [ ] Token management and cost tracking
 
 ### DevOps & Infrastructure
 - [ ] Docker multi-stage builds
@@ -912,9 +912,9 @@ jobs:
 
 ---
 
-## 📚 Дополнительные ресурсы
+## 📚 Additional Resources
 
-### Документация
+### Documentation
 - LangChain: https://js.langchain.com/
 - Fastify: https://www.fastify.io/
 - Next.js: https://nextjs.org/
@@ -928,13 +928,13 @@ jobs:
 
 ---
 
-## ✅ Заключение
+## ✅ Conclusion
 
-Этот план обеспечит трансформацию Boltalka из legacy PHP application в современный, масштабируемый AI-native продукт с enterprise-grade архитектурой. Каждая фаза имеет четкие deliverables и может быть отслеживаться независимо.
+This plan will transform Boltalka from a legacy PHP application into a modern, scalable AI-native product with enterprise-grade architecture. Each phase has clear deliverables and can be tracked independently.
 
-**Ключевые преимущества:**
+**Key Advantages:**
 ✅ Full TypeScript type safety  
-✅ LLM orchestration с LangChain/LangGraph  
+✅ LLM orchestration with LangChain/LangGraph  
 ✅ Production observability (traces, metrics, logs)  
 ✅ Scalable architecture (microservices-ready)  
 ✅ Modern tooling & best practices  

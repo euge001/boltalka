@@ -6,22 +6,22 @@ describe('Backend - App Configuration', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...originalEnv };
+    (process.env as any) = { ...originalEnv };
   });
 
   afterEach(() => {
-    process.env = { ...originalEnv };
+    (process.env as any) = { ...originalEnv };
   });
 
   describe('loadConfig', () => {
     it('should load default configuration', () => {
-      delete process.env.HOST;
-      delete process.env.PORT;
-      delete process.env.NODE_ENV;
-      delete process.env.CORS_ORIGIN;
-      delete process.env.JWT_SECRET;
-      delete process.env.DATABASE_URL;
-      delete process.env.LOG_LEVEL;
+      delete (process.env as any).HOST;
+      delete (process.env as any).PORT;
+      delete (process.env as any).NODE_ENV;
+      delete (process.env as any).CORS_ORIGIN;
+      delete (process.env as any).JWT_SECRET;
+      delete (process.env as any).DATABASE_URL;
+      delete (process.env as any).LOG_LEVEL;
 
       const config = loadConfig();
 
@@ -37,14 +37,14 @@ describe('Backend - App Configuration', () => {
     });
 
     it('should load configuration from environment variables', () => {
-      process.env.HOST = '127.0.0.1';
-      process.env.PORT = '8080';
-      process.env.NODE_ENV = 'production';
-      process.env.CORS_ORIGIN = 'https://example.com';
-      process.env.JWT_SECRET = 'prod-secret';
-      process.env.DATABASE_URL = 'postgresql://user:pass@host/db';
-      process.env.LOG_LEVEL = 'debug';
-      process.env.OPENAI_API_KEY = 'sk-test';
+      (process.env as any).HOST = '127.0.0.1';
+      (process.env as any).PORT = '8080';
+      (process.env as any).NODE_ENV = 'production';
+      (process.env as any).CORS_ORIGIN = 'https://example.com';
+      (process.env as any).JWT_SECRET = 'prod-secret';
+      (process.env as any).DATABASE_URL = 'postgresql://user:pass@host/db';
+      (process.env as any).LOG_LEVEL = 'debug';
+      (process.env as any).OPENAI_API_KEY = 'sk-test';
 
       const config = loadConfig();
 
@@ -61,7 +61,7 @@ describe('Backend - App Configuration', () => {
     });
 
     it('should parse port as number', () => {
-      process.env.PORT = '5000';
+      (process.env as any).PORT = '5000';
       const config = loadConfig();
       expect(config.port).toBe(5000);
       expect(typeof config.port).toBe('number');

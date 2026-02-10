@@ -1,25 +1,25 @@
-# ⚡ Action Plan: Фаза 1 (Неделя 1-2)
+# ⚡ Action Plan: Phase 1 (Week 1-2)
 
-## 🎯 Цель Фазы 1
-Готовая инфраструктура для разработки: monorepo, Docker, TypeScript, базовые scaffolds backend + frontend.
+## 🎯 Phase 1 Goal
+Ready infrastructure for development: monorepo, Docker, TypeScript, basic scaffolds backend + frontend.
 
-**Итог:** `turbo run build` работает, оба приложения запускаются локально в Docker.
+**Result:** `turbo run build` works, both applications launch locally in Docker.
 
 ---
 
-## 📅 День 1: Monorepo Setup
+## 📅 Day 1: Monorepo Setup
 
-### Шаг 1.1 - Инициализировать структуру
+### Step 1.1 - Initialize structure
 ```bash
 cd /var/www/html/Boltalka-Node
 rm app.js coder.js *.php index.html coder.html manifest.webmanifest || true
 
-# Создать структуру monorepo
+# Create monorepo structure
 mkdir -p packages/backend packages/frontend packages/shared
 mkdir -p infra/docker infra/scripts docs
 ```
 
-### Шаг 1.2 - Инициализировать общий package.json (root)
+### Step 1.2 - Initialize root package.json
 ```bash
 cat > package.json << 'EOF'
 {
@@ -45,7 +45,7 @@ cat > package.json << 'EOF'
 EOF
 ```
 
-### Шаг 1.3 - pnpm workspace конфиг
+### Step 1.3 - pnpm workspace config
 ```bash
 cat > pnpm-workspace.yaml << 'EOF'
 packages:
@@ -53,7 +53,7 @@ packages:
 EOF
 ```
 
-### Шаг 1.4 - TypeScript base config (root)
+### Step 1.4 - TypeScript base config (root)
 ```bash
 cat > tsconfig.json << 'EOF'
 {
@@ -78,7 +78,7 @@ cat > tsconfig.json << 'EOF'
 EOF
 ```
 
-### Шаг 1.5 - Prettier config
+### Step 1.5 - Prettier config
 ```bash
 cat > .prettierrc.json << 'EOF'
 {
@@ -99,7 +99,7 @@ pnpm-lock.yaml
 EOF
 ```
 
-### Шаг 1.6 - Git & env
+### Step 1.6 - Git & env
 ```bash
 cat > .gitignore << 'EOF'
 node_modules
@@ -127,13 +127,13 @@ EOF
 cp .env.example .env
 ```
 
-✅ **Результат дня 1:** Базовая структура готова.
+✅ **Day 1 Result:** Basic structure ready.
 
 ---
 
-## 📅 День 2: Backend Scaffold
+## 📅 Day 2: Backend Scaffold
 
-### Шаг 2.1 - Backend package.json
+### Step 2.1 - Backend package.json
 ```bash
 cat > packages/backend/package.json << 'EOF'
 {
@@ -182,7 +182,7 @@ cat > packages/backend/package.json << 'EOF'
 EOF
 ```
 
-### Шаг 2.2 - Backend TypeScript config
+### Step 2.2 - Backend TypeScript config
 ```bash
 cat > packages/backend/tsconfig.json << 'EOF'
 {
@@ -212,7 +212,7 @@ cat > packages/backend/tsconfig.json << 'EOF'
 EOF
 ```
 
-### Шаг 2.3 - Структура директорий backend
+### Step 2.3 - Backend directory structure
 ```bash
 mkdir -p packages/backend/src/{core,api,services,utils,config,types,constants}
 mkdir -p packages/backend/src/core/{llm,voice,database,observability,auth}
@@ -220,7 +220,7 @@ mkdir -p packages/backend/src/api/{rest,graphql,websocket}
 mkdir -p packages/backend/tests/{unit,integration}
 ```
 
-### Шаг 2.4 - Backend main entry point
+### Step 2.4 - Backend main entry point
 ```bash
 cat > packages/backend/src/main.ts << 'EOF'
 import Fastify from 'fastify';
@@ -266,7 +266,7 @@ start();
 EOF
 ```
 
-### Шаг 2.5 - Logger utility
+### Step 2.5 - Logger utility
 ```bash
 cat > packages/backend/src/utils/logger.ts << 'EOF'
 import pino from 'pino';
@@ -284,7 +284,7 @@ export const logger = pino({
 EOF
 ```
 
-### Шаг 2.6 - Prisma schema (base)
+### Step 2.6 - Prisma schema (base)
 ```bash
 mkdir -p packages/backend/prisma
 
@@ -331,7 +331,7 @@ model Message {
 EOF
 ```
 
-### Шаг 2.7 - Env файл бэкенда
+### Step 2.7 - Backend env file
 ```bash
 cat > packages/backend/.env.example << 'EOF'
 # Core
@@ -356,19 +356,19 @@ EOF
 cp packages/backend/.env.example packages/backend/.env
 ```
 
-✅ **Результат дня 2:** Backend scaffold готов к запуску.
+✅ **Day 2 Result:** Backend scaffold ready to launch.
 
 ---
 
-## 📅 День 3: Frontend Scaffold
+## 📅 Day 3: Frontend Scaffold
 
-### Шаг 3.1 - Frontend инициализация (Next.js 14)
+### Step 3.1 - Frontend initialization (Next.js 14)
 ```bash
 cd packages/frontend
 npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias '@/*'
 ```
 
-### Шаг 3.2 - Frontend package.json (update)
+### Step 3.2 - Frontend package.json (update)
 ```bash
 cat > packages/frontend/package.json << 'EOF'
 {
@@ -412,7 +412,7 @@ cat > packages/frontend/package.json << 'EOF'
 EOF
 ```
 
-### Шаг 3.3 - Frontend структура
+### Step 3.3 - Frontend structure
 ```bash
 mkdir -p app/{boltalka,coder,settings,_layout}
 mkdir -p components/{voice,chat,settings}
@@ -423,7 +423,7 @@ mkdir -p types
 mkdir -p utils
 ```
 
-### Шаг 3.4 - Frontend main layout
+### Step 3.4 - Frontend main layout
 ```bash
 cat > app/layout.tsx << 'EOF'
 import type { Metadata } from 'next';
@@ -448,7 +448,7 @@ export default function RootLayout({
 EOF
 ```
 
-### Шаг 3.5 - Frontend home page
+### Step 3.5 - Frontend home page
 ```bash
 cat > app/page.tsx << 'EOF'
 'use client';
@@ -481,20 +481,20 @@ export default function Home() {
 EOF
 ```
 
-### Шаг 3.6 - Env файл фронтенда
+### Step 3.6 - Frontend env file
 ```bash
 cat > packages/frontend/.env.local << 'EOF'
 NEXT_PUBLIC_API_URL=http://localhost:3000
 EOF
 ```
 
-✅ **Результат дня 3:** Frontend scaffold готов.
+✅ **Day 3 Result:** Frontend scaffold ready.
 
 ---
 
-## 📅 День 4: Docker Setup
+## 📅 Day 4: Docker Setup
 
-### Шаг 4.1 - Docker Compose
+### Step 4.1 - Docker Compose
 ```bash
 cat > docker-compose.yml << 'EOF'
 version: '3.8'
@@ -575,7 +575,7 @@ networks:
 EOF
 ```
 
-### Шаг 4.2 - Backend Dockerfile
+### Step 4.2 - Backend Dockerfile
 ```bash
 cat > infra/docker/Dockerfile.backend << 'EOF'
 FROM node:20-alpine
@@ -604,7 +604,7 @@ CMD ["npm", "run", "dev"]
 EOF
 ```
 
-### Шаг 4.3 - Frontend Dockerfile
+### Step 4.3 - Frontend Dockerfile
 ```bash
 cat > infra/docker/Dockerfile.frontend << 'EOF'
 FROM node:20-alpine
@@ -628,13 +628,13 @@ CMD ["npm", "run", "dev"]
 EOF
 ```
 
-✅ **Результат дня 4:** Docker интеграция готова.
+✅ **Day 4 Result:** Docker integration ready.
 
 ---
 
-## 📅 День 5: Turbo + CI/CD Setup
+## 📅 Day 5: Turbo + CI/CD Setup
 
-### Шаг 5.1 - Turbo config
+### Step 5.1 - Turbo config
 ```bash
 cat > turbo.json << 'EOF'
 {
@@ -662,7 +662,7 @@ cat > turbo.json << 'EOF'
 EOF
 ```
 
-### Шаг 5.2 - GitHub Actions CI/CD
+### Step 5.2 - GitHub Actions CI/CD
 ```bash
 mkdir -p .github/workflows
 
@@ -694,7 +694,7 @@ jobs:
 EOF
 ```
 
-### Шаг 5.3 - Shared package (base)
+### Step 5.3 - Shared package (base)
 ```bash
 cat > packages/shared/package.json << 'EOF'
 {
@@ -732,13 +732,13 @@ export const API_VERSION = '2.0.0';
 EOF
 ```
 
-✅ **Результат дня 5:** Turbo + CI/CD pipeline готов.
+✅ **Day 5 Result:** Turbo + CI/CD pipeline ready.
 
 ---
 
-## 📅 День 6-7: Тестирование и документация
+## 📅 Day 6-7: Testing and Documentation
 
-### Шаг 6.1 - Backend Jest config
+### Step 6.1 - Backend Jest config
 ```bash
 cat > packages/backend/jest.config.js << 'EOF'
 export default {
@@ -757,7 +757,7 @@ export default {
 EOF
 ```
 
-### Шаг 6.2 - Frontend Vitest config
+### Step 6.2 - Frontend Vitest config
 ```bash
 cat > packages/frontend/vitest.config.ts << 'EOF'
 import { defineConfig } from 'vitest/config';
@@ -785,7 +785,7 @@ export default defineConfig({
 EOF
 ```
 
-### Шаг 6.3 - README
+### Step 6.3 - README
 ```bash
 cat > README.md << 'EOF'
 # Boltalka AI - AI-native Voice Assistant
@@ -861,33 +861,33 @@ MIT
 EOF
 ```
 
-✅ **Результат дня 6-7:** Полная фаза 1 завершена! ✅
+✅ **Day 6-7 Result:** Phase 1 complete! ✅
 
 ---
 
-## ✅ Финальная проверка (Чекблист дня 7)
+## ✅ Final Verification (Day 7 Checklist)
 
 ```bash
-# 1. Проверить структуру
+# 1. Check structure
 tree -L 2 -I node_modules
 
-# 2. Запустить Docker
+# 2. Start Docker
 docker-compose up
 
-# 3. Проверить endpoints
+# 3. Check endpoints
 curl http://localhost:3000/health
 curl http://localhost:3001
 
-# 4. Проверить сборку Turbo
+# 4. Check Turbo build
 pnpm build
 
-# 5. Проверить тесты
+# 5. Check tests
 pnpm test
 
-# 6. Проверить lint
+# 6. Check linting
 pnpm lint
 
-# 7. Проверить форматирование
+# 7. Check formatting
 pnpm format
 ```
 
@@ -903,16 +903,16 @@ pnpm format
 
 ---
 
-## 🚀 Что дальше?
+## 🚀 What's Next?
 
-После завершения Фазы 1 переходим к **Фазе 2: LLM Layer**
+After completing Phase 1, proceed to **Phase 2: LLM Layer**
 
 - [ ] LangChain chains setup
 - [ ] Langfuse integration
 - [ ] Vector DB (Pinecone) setup
 - [ ] RAG pipeline
 
-**Статус:** Готов к старту!
+**Status:** Ready to start!
 
 ---
 
@@ -947,25 +947,23 @@ docker exec boltalka-backend npx prisma migrate dev
 
 ---
 
-**Сроки:** 7 дней на полную готовность инфраструктуры 🎯
+**Timeline:** 7 days for full infrastructure readiness 🎯
 
-**Следующий шаг:** Начать с дня 1! ⚡
-EOF
-```
+**Next step:** Start with day 1! ⚡
 
-Готово! Это **пошаговый action plan** с командами, которые можно сразу копировать и выполнять:
+Done! This is a **step-by-step action plan** with commands that can be copied and executed directly:
 
-## 📊 Структура плана:
+## 📊 Plan Structure:
 
-✅ **День 1** - Monorepo base (30 мин)  
-✅ **День 2** - Backend scaffold (1-2 часа)  
-✅ **День 3** - Frontend scaffold (1 час)  
-✅ **День 4** - Docker setup (45 мин)  
-✅ **День 5** - Turbo + CI/CD (30 мин)  
-✅ **День 6-7** - Тесты + документация (1 час)  
+✅ **Day 1** - Monorepo base (30 min)  
+✅ **Day 2** - Backend scaffold (1-2 hours)  
+✅ **Day 3** - Frontend scaffold (1 hour)  
+✅ **Day 4** - Docker setup (45 min)  
+✅ **Day 5** - Turbo + CI/CD (30 min)  
+✅ **Day 6-7** - Testing + documentation (1 hour)  
 
-**Итого: 5-7 дней** до полностью рабочей инфраструктуры.
+**Total: 5-7 days** until fully working infrastructure.
 
-Каждый день - конкретные bash команды, которые можно копировать прямо в терминал. После дня 7 `docker-compose up` должен запустить оба приложения и всю инфу ✅
+Each day - concrete bash commands that can be copied directly to the terminal. After day 7, `docker-compose up` should launch both applications and all infrastructure ✅
 
-Начинаем? 🚀
+Let's go? 🚀

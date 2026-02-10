@@ -14,7 +14,7 @@ export function loadConfig(): AppConfig {
     host: process.env.HOST || '0.0.0.0',
     port: parseInt(process.env.PORT || '3000', 10),
     nodeEnv: process.env.NODE_ENV || 'development',
-    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+    corsOrigin: process.env.CORS_ORIGIN || '*',
     jwtSecret: process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
     databaseUrl: process.env.DATABASE_URL || 'postgresql://localhost/boltalka',
     openaiApiKey: process.env.OPENAI_API_KEY,
