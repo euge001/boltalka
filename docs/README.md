@@ -1,89 +1,37 @@
-# Boltalka & Coder Expert
+# Boltalka & Coder Expert Documentation
 
-A comprehensive system for real-time voice interaction with AI.
+A comprehensive system for real-time voice interaction with AI using modern TypeScript stack.
 
-## 🚀 Two Modes
+## 🚀 Two Main Applications
 
-1. **Classic Boltalka (`index.html`)**: Voice-to-voice. AI listens and responds with audio. Perfect for casual conversation.
-2. **Coder Expert (`coder.html`)**: Silent mode. AI listens and outputs solutions as text/code in chat. Uses `gpt-4o-mini-realtime` for transcription and `gpt-4o` for solution generation.
+1. **Voice Bot (/chat)**: Voice-to-voice. AI listens and responds with audio. Supports both automatic detection and manual triggers.
+2. **Coder Expert (/coder)**: Focuses on technical solutions. Listens to input (Mic or System Audio) and outputs solutions as text/code.
 
-## 🎤 Dialog Modes in Boltalka
+## 🎤 Dialog Modes
 
 ### **Auto (VAD — Voice Activity Detection)**
-- AI automatically detects the end of your speech (server-side VAD)
-- Responds immediately after you finish speaking
-- **Use when**: Natural conversation, hands-free interaction
+- AI automatically detects the end of your speech.
+- Best for natural conversation.
 
 ### **Manual (Push-to-Talk)**
-- You control when to send audio
-- Press **Talk** → microphone active (`🔴 Recording...`)
-- Speak your phrase
-- Press **Talk** again → audio sent, AI responds
-- **Use when**: Noisy environments, precise control needed
+- Press and hold **Talk** to record.
+- Release to send and get response.
+- Best for noisy environments or specific triggers.
 
-**Important**: The **Talk** button works ONLY in Manual mode and when connected.
-
-## 🛠 Tech Stack
-- **Frontend**: HTML5, WebRTC, Bootstrap 5, Marked.js (Markdown)
-- **Backend**: PHP (Litespeed/Apache/Nginx)
-- **API**: OpenAI Realtime API (GA) & Chat Completions API
-
-## ⚙️ Configuration
-
-### 1. API Keys
-File `.env` in root. Contains `OPENAI_API_KEY`.
-
-### 2. Models & Roles
-- **Transcription**: Set in `token.php` and `app.js`/`coder.js` (instructions)
-- **Expert Logic**: Configured in `chat.php` with system prompts and model selection
-
-### 3. Session Settings
-In `app.js` and `coder.js`, `connect()` → `session.update`:
-- `instructions`: Global behavior rules for the model
-- `turn_detection`: VAD settings (Auto mode only)
-
-### 4. Model & Language Switching (NEW)
-Use the `ConfigService` (see `configService.js`):
-```javascript
-const config = await ConfigService.getConfig();
-await ConfigService.setModel('gpt-4o-mini-realtime-preview');
-await ConfigService.setLanguage('en');
-await ConfigService.setInstructions('Your custom prompt...');
-```
+## 📂 Project Structure (Modern)
+- `packages/frontend/app/chat/` — Main voice interface.
+- `packages/frontend/app/coder/` — Expert coding assistant.
+- `packages/backend/src/` — API handlers and orchestrators.
+- `packages/shared/` — Common types.
 
 ## 🧪 Testing
+Run tests across the workspace:
 ```bash
-# Backend tests
-php test_backend.php
-
-# API key validation
-python3 api_check.py
-
-# Run all tests
-npm test
+pnpm test
 ```
 
-## 📂 Project Structure
-- `app.js` / `index.html` — Main voice chat with Auto/Manual modes
-- `coder.js` / `coder.html` — Silent expert mode
-- `configService.js` — Reusable model/language switching service
-- `chat.php` — Backend proxy for heavy models
-- `token.php` — Secure temporary key generation for WebRTC
-- `config.php` — Central configuration
-- `config_js.php` — Config export for JavaScript
-- `tests/` — Comprehensive test suite
-
-## 📝 Changelog
-
-### v9.x (Feb 2026)
-- ✅ Complete English translation (UI + docs)
-- ✅ ConfigService for model/language switching
-- ✅ 100% test coverage with automated test suite
-- ✅ On-the-fly mode switching
-
-### v8.x
-- ✅ Auto & Manual modes
-- ✅ Talk button (Manual only, when connected)
-- ✅ Enhanced logging
-
-
+## 📝 Modernization Changes (Feb 2026)
+- ✅ Removal of legacy PHP codebase.
+- ✅ Transition to Monorepo with `turbo` and `pnpm`.
+- ✅ Unified `useWebRTC` hook for both interfaces.
+- ✅ Support for multiple AI models and languages.

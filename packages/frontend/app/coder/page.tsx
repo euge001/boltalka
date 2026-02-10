@@ -16,8 +16,9 @@ export default function CoderPage() {
   const [textInput, setTextInput] = useState('');
   const [selectedPersona, setSelectedPersona] = useState('coding');
   const [selectedSource, setSelectedSource] = useState('mic');
-  const [selectedVadMode, setSelectedVadMode] = useState<'server_vad' | 'manual'>('server_vad');
+  const [selectedVadMode, setSelectedVadMode] = useState<'server_vad' | 'manual'>('manual');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-realtime-preview');
   const [isRecording, setIsRecording] = useState(false);
   const logRef = useRef<HTMLPreElement>(null);
   const volumeBarRef = useRef<HTMLDivElement>(null);
@@ -140,7 +141,7 @@ export default function CoderPage() {
       const tokenRes = await fetch('/api/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'gpt-4o-realtime-preview' }),
+        body: JSON.stringify({ model: selectedModel }),
       });
 
       if (!tokenRes.ok) {
@@ -157,33 +158,32 @@ export default function CoderPage() {
       log('✓ Token obtained');
 
       // Handle audio source BEFORE connecting (System Audio requires getDisplayMedia)
+      let customAudioStream: MediaStream | null = null;
       if (selectedSource === 'system') {
         try {
-          log('🔊 Requesting System Audio access...');
+          log('🔊 Getting System Audio... (SELECT SCREEN/TAB WHEN PROMPTED)');
           const displayStream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true,
           });
           
-          // Extract only audio track
           const audioTracks = displayStream.getAudioTracks();
           if (audioTracks.length === 0) {
-            throw new Error('System audio not available in this browser');
+            displayStream.getTracks().forEach(t => t.stop());
+            throw new Error('No audio in stream');
           }
           
-          // Stop video tracks - we only need audio
-          displayStream.getVideoTracks().forEach(track => track.stop());
+          log(`✓ System Audio OK: ${audioTracks[0].label}`);
           
-          // Create audio-only stream
-          const audioStream = new MediaStream(audioTracks);
-          
-          // Pass to WebRTC via custom method later - for now log it
-          log('✓ System Audio captured');
+          // Stop video - only keep audio
+          displayStream.getVideoTracks().forEach(t => t.stop());
+          customAudioStream = new MediaStream(audioTracks);
         } catch (e) {
           if (e instanceof DOMException && e.name === 'NotAllowedError') {
-            log('⚠️ System Audio permission denied - falling back to Microphone');
-            setSelectedSource('mic'); // Use setter instead of direct assignment
+            log('❌ Cancelled - Using Microphone');
+            setSelectedSource('mic');
           } else {
+            log(`❌ ${e instanceof Error ? e.message : String(e)}`);
             throw e;
           }
         }
@@ -194,14 +194,25 @@ export default function CoderPage() {
       const personaBase = personaInstructions[selectedPersona] || personaInstructions['default'];
       const instructions = `${languageBase}\n${personaBase}\nAlways respond in text format only. Do not attempt voice responses.`;
 
+      // Map language codes for Whisper (ISO 639-1)
+      const languageMap: Record<string, string> = {
+        'en': 'en',
+        'ru': 'ru',
+        'es': 'es',
+        'fr': 'fr',
+      };
+
       await webrtc.connect(
         ephemeralKey,
-        'gpt-4o-realtime-preview',
+        selectedModel,
         instructions,
-        selectedVadMode
+        selectedVadMode,
+        customAudioStream || undefined,
+        languageMap[selectedLanguage] || 'en',
+        ['text'] // Transcription mode
       );
 
-      log(`✓ Connected (Expert: ${selectedPersona}, Lang: ${selectedLanguage.toUpperCase()})`);
+      log('✓ Connected');
 
       if (webrtc.localStream) {
         setupVolumeVisualizer(webrtc.localStream);
@@ -210,7 +221,7 @@ export default function CoderPage() {
       const msg = error instanceof Error ? error.message : String(error);
       log(`❌ Connection error: ${msg}`);
     }
-  }, [selectedPersona, selectedLanguage, selectedVadMode, webrtc, log, setupVolumeVisualizer]);
+  }, [selectedPersona, selectedLanguage, selectedVadMode, selectedSource, webrtc, log, setupVolumeVisualizer]);
 
   // Handle Disconnect
   const handleDisconnect = useCallback(async () => {
@@ -224,12 +235,13 @@ export default function CoderPage() {
     log('✓ Disconnected');
   }, [webrtc, log]);
 
-  // Handle Talk Button
+  // Handle Talk Button - Press & Hold (Like Legacy)
+  // mousedown: Start recording
+  // mouseup: Stop recording + commit buffer
   const handleTalkMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
 
     if (selectedVadMode !== 'manual') {
-      log('⚠️ Talk button only in Manual mode');
       return;
     }
 
@@ -240,7 +252,7 @@ export default function CoderPage() {
 
     setIsRecording(true);
     webrtc.setMicEnabled(true);
-    log('🎤 Talk pressed');
+    log('🎤 Listening...');
   }, [selectedVadMode, webrtc, log]);
 
   const handleTalkMouseUp = useCallback((e: React.MouseEvent) => {
@@ -250,17 +262,11 @@ export default function CoderPage() {
 
     setIsRecording(false);
     webrtc.setMicEnabled(false);
-    log('📤 Talk released');
+    log('📤 Committed - awaiting transcription');
 
-    setTimeout(() => {
-      log('💾 Committing audio...');
-      webrtc.sendEvent({ type: 'input_audio_buffer.commit' });
-
-      setTimeout(() => {
-        log('🤖 Requesting response...');
-        webrtc.sendEvent({ type: 'response.create' });
-      }, 200);
-    }, 200);
+    // CRITICAL: In manual mode, we MUST commit immediately on release
+    // This tells OpenAI to process the audio buffer we just recorded
+    webrtc.sendEvent({ type: 'input_audio_buffer.commit' });
   }, [isRecording, webrtc, log]);
 
   // Handle Send Text
@@ -364,9 +370,13 @@ export default function CoderPage() {
   // Handle VAD Mode Change
   const handleVadModeChange = useCallback((newMode: 'server_vad' | 'manual') => {
     setSelectedVadMode(newMode);
-    log(`🔄 Mode: ${newMode === 'server_vad' ? 'AUTO' : 'MANUAL'}`);
 
     if (webrtc.state.isConnected) {
+      // Preserve language instructions when updating VAD mode
+      const languageBase = languageInstructions[selectedLanguage] || languageInstructions['en'];
+      const personaBase = personaInstructions[selectedPersona] || personaInstructions['default'];
+      const currentInstructions = `${languageBase}\n${personaBase}\nAlways respond in text format only. Do not attempt voice responses.`;
+
       if (newMode === 'server_vad') {
         webrtc.setMicEnabled(true);
       } else {
@@ -377,15 +387,12 @@ export default function CoderPage() {
         type: 'session.update',
         session: {
           modalities: ['text'],
-          instructions: 'Silent transcription mode. Do not speak. Only provide text transcription events.',
-          voice: 'alloy',
+          instructions: currentInstructions,
           turn_detection: newMode === 'server_vad' ? { type: 'server_vad' } : null,
         },
       });
-
-      log('✓ Session updated');
     }
-  }, [selectedPersona, webrtc, log]);
+  }, [selectedPersona, selectedLanguage, languageInstructions, personaInstructions, webrtc]);
 
   const getStatusColor = () => {
     if (webrtc.state.status === 'connected') return 'success';
@@ -546,6 +553,24 @@ export default function CoderPage() {
               <option value="manual">Manual (Talk)</option>
             </select>
 
+            {/* Model Selector */}
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              disabled={webrtc.state.isConnected}
+              style={{
+                padding: '0.5rem',
+                background: '#1f2937',
+                color: '#e5e7eb',
+                border: '1px solid #374151',
+                borderRadius: '0.25rem',
+                cursor: webrtc.state.isConnected ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <option value="gpt-4o-realtime-preview">GPT-4o Realtime</option>
+              <option value="gpt-4o-mini-realtime-preview">GPT-4o Mini</option>
+            </select>
+
             {/* Talk Button */}
             <button
               disabled={!webrtc.state.isConnected || selectedVadMode !== 'manual'}
@@ -563,7 +588,7 @@ export default function CoderPage() {
               onMouseUp={handleTalkMouseUp}
               onMouseLeave={handleTalkMouseUp}
             >
-              {isRecording ? '🔴 Recording...' : '🎤 Talk'}
+              {isRecording ? '🔴 Listening...' : '🎤 Talk'}
             </button>
 
             {/* Screenshot */}

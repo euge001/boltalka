@@ -16,7 +16,15 @@ export interface WebRTCEvent {
 
 export interface UseWebRTCReturn {
   state: WebRTCState;
-  connect: (ephemeralKey: string, model: string, instructions: string, vadMode: 'server_vad' | 'manual') => Promise<void>;
+  connect: (
+    ephemeralKey: string, 
+    model: string, 
+    instructions: string, 
+    vadMode: 'server_vad' | 'manual', 
+    customStream?: MediaStream, 
+    languageCode?: string,
+    modalities?: string[]
+  ) => Promise<void>;
   disconnect: () => Promise<void>;
   sendEvent: (event: WebRTCEvent) => void;
   sendAudioText: (text: string) => void;
@@ -33,6 +41,9 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
     error: null,
     status: 'idle',
   });
+
+  const customStreamRef = useRef<MediaStream | null>(null);
+  const languageCodeRef = useRef<string>('en');
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
@@ -123,57 +134,82 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
       ephemeralKey: string,
       model: string,
       instructions: string,
-      vadMode: 'server_vad' | 'manual'
+      vadMode: 'server_vad' | 'manual',
+      customStream?: MediaStream,
+      languageCode?: string,
+      modalities?: string[]
     ) => {
       try {
+        if (languageCode) {
+          languageCodeRef.current = languageCode;
+        }
         setState((prev) => ({ ...prev, isConnecting: true, status: 'connecting', error: null }));
-        log('🔗 Starting WebRTC connection...');
+        log('🔗 Connecting...');
 
-        // Create PeerConnection
-        pcRef.current = new RTCPeerConnection({
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-        });
+        // Create PeerConnection (no STUN - matches legacy)
+        try {
+          pcRef.current = new RTCPeerConnection();
+        } catch (pcError) {
+          throw new Error(`PeerConnection creation failed: ${pcError instanceof Error ? pcError.message : String(pcError)}`);
+        }
 
         // Handle remote track
         pcRef.current.ontrack = (event) => {
-          log('✓ Remote audio track received');
+          log('🔊 Audio received');
           if (remoteAudioRef.current) {
             remoteAudioRef.current.srcObject = event.streams[0];
           }
         };
 
-        // Get audio stream based on source (mic or system audio)
-        if (process.env.NODE_ENV === 'development' || true) {
-          // Browser context - handle both mic and system audio
-          if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
-            try {
-              // For now, default to microphone
-              // System audio requires getDisplayMedia which is separate
-              localStreamRef.current = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                  echoCancellation: true,
-                  noiseSuppression: true,
-                },
-              });
-            } catch (e) {
-              throw new Error('Microphone access denied');
+        // Track ICE candidates and connection state
+        pcRef.current.onicecandidate = (event) => {
+          if (event.candidate) {
+            // Only log summary, not every candidate
+            if (!event.candidate.candidate.includes('host')) {
+              log(`🧊 ICE (${event.candidate.type})`);
             }
           }
-        } else {
-          localStreamRef.current = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-            },
-          });
+        };
+
+        pcRef.current.onconnectionstatechange = () => {
+          log(`🔌 Connection: ${pcRef.current?.connectionState}`);
+        };
+
+        pcRef.current.oniceconnectionstatechange = () => {
+          if (pcRef.current?.iceConnectionState === 'failed') {
+            log('❌ ICE failed');
+          }
+        };
+
+        // Get audio stream based on source (mic or system audio)
+        try {
+          if (customStream) {
+            localStreamRef.current = customStream;
+            log('✓ Using SYSTEM AUDIO');
+          } else if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
+            localStreamRef.current = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+              },
+            });
+            log('✓ Using MICROPHONE');
+          }
+        } catch (audioError) {
+          throw new Error(`Audio stream failed: ${audioError instanceof Error ? audioError.message : String(audioError)}`);
         }
 
-        log('✓ Microphone access granted');
-
-        // Add audio tracks
-        localStreamRef.current!.getTracks().forEach((track) => {
-          pcRef.current!.addTrack(track, localStreamRef.current!);
-        });
+        if (localStreamRef.current) {
+          // Add audio tracks to peer connection
+          try {
+            localStreamRef.current!.getTracks().forEach((track) => {
+              pcRef.current!.addTrack(track, localStreamRef.current!);
+            });
+            log('✓ Audio tracks ready');
+          } catch (trackError) {
+            throw new Error(`Failed to add audio tracks: ${trackError instanceof Error ? trackError.message : String(trackError)}`);
+          }
+        }
 
         // Create data channel
         dcRef.current = pcRef.current.createDataChannel('oai-events');
@@ -182,20 +218,26 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
         dcRef.current.onopen = () => {
           log('✓ DataChannel open');
           
-          // Set initial state
+          // ⚠️ CRITICAL: Set initial mic state based on VAD mode
+          // Manual mode: mic DISABLED (isMuted=true) until Talk button pressed
+          // Server VAD: mic ENABLED (isMuted=false) for auto-detection
           const isManual = vadMode === 'manual';
           setMicEnabled(!isManual);
           if (localStreamRef.current) {
             localStreamRef.current.getAudioTracks().forEach((t) => {
               t.enabled = !isManual;
+              log(`🎤 Audio track enabled=${t.enabled} (manual=${isManual})`);
             });
           }
 
           // Send session config
           const sessionConfig: any = {
-            modalities: ['text'],
+            modalities: modalities || ['text', 'audio'], // Default to voice bot mode
             instructions,
-            input_audio_transcription: { model: 'whisper-1' },
+            input_audio_transcription: { 
+              model: 'whisper-1',
+              language: languageCodeRef.current
+            },
             turn_detection: vadMode === 'server_vad' ? { type: 'server_vad' } : null,
           };
 
@@ -210,39 +252,45 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
             isConnecting: false,
             status: 'connected',
           }));
-          log('✓ Connected and session configured');
+          log('✓ Connected');
         };
 
         // Create offer
-        const offer = await pcRef.current.createOffer();
-        await pcRef.current.setLocalDescription(offer);
-
-        log(`🔄 Exchanging SDP with OpenAI (model: ${model})...`);
-
-        // Exchange SDP with OpenAI
-        const sdpResponse = await fetch(
-          `https://api.openai.com/v1/realtime?model=${model}`,
-          {
-            method: 'POST',
-            body: offer.sdp,
-            headers: {
-              Authorization: `Bearer ${ephemeralKey}`,
-              'Content-Type': 'application/sdp',
-            },
-          }
-        );
-
-        if (!sdpResponse.ok) {
-          throw new Error(`SDP exchange failed: ${await sdpResponse.text()}`);
+        let offer: RTCSessionDescriptionInit;
+        try {
+          offer = await pcRef.current.createOffer();
+          await pcRef.current.setLocalDescription(offer);
+        } catch (offerError) {
+          throw new Error(`Offer creation failed: ${offerError instanceof Error ? offerError.message : String(offerError)}`);
         }
 
-        const answerSdp = await sdpResponse.text();
-        await pcRef.current.setRemoteDescription({
-          type: 'answer',
-          sdp: answerSdp,
-        });
+        // Exchange SDP with OpenAI
+        try {
+          const sdpResponse = await fetch(
+            `https://api.openai.com/v1/realtime?model=${model}`,
+            {
+              method: 'POST',
+              body: offer.sdp,
+              headers: {
+                Authorization: `Bearer ${ephemeralKey}`,
+                'Content-Type': 'application/sdp',
+              },
+            }
+          );
 
-        log('✓ WebRTC connection established');
+          if (!sdpResponse.ok) {
+            throw new Error(`SDP response ${sdpResponse.status}: ${await sdpResponse.text()}`);
+          }
+
+          const answerSdp = await sdpResponse.text();
+          await pcRef.current.setRemoteDescription({
+            type: 'answer',
+            sdp: answerSdp,
+          });
+          log('✓ WebRTC established');
+        } catch (sdpError) {
+          throw new Error(`SDP exchange failed: ${sdpError instanceof Error ? sdpError.message : String(sdpError)}`);
+        }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         log('❌ Connection failed', error);

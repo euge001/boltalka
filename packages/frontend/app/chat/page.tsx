@@ -68,7 +68,10 @@ export default function ChatPage() {
         ephemeralKey,
         selectedModel,
         instructions,
-        vadMode
+        vadMode,
+        undefined, // Microphone
+        selectedLanguage, // For Whisper
+        ['text', 'audio'] // Voice mode
       );
 
       log(`✓ Connected (VAD: ${vadMode === 'server_vad' ? 'AUTO' : 'MANUAL'})`);
@@ -110,17 +113,15 @@ export default function ChatPage() {
 
     setIsRecording(false);
     webrtc.setMicEnabled(false);
-    log('📤 Talk released - sending audio');
+    log('📤 Committed - awaiting AI voice response');
 
-    // Commit audio with delays per legacy
+    // For Boltalka (Voice Bot) in Manual mode, we commit, then request a response
+    // Delay slightly to ensure buffer is final
     setTimeout(() => {
-      log('💾 Committing audio buffer...');
-      webrtc.sendEvent({ type: 'input_audio_buffer.commit' });
-
-      setTimeout(() => {
-        log('🤖 Requesting AI response...');
-        webrtc.sendEvent({ type: 'response.create' });
-      }, 200);
+        webrtc.sendEvent({ type: 'input_audio_buffer.commit' });
+        setTimeout(() => {
+            webrtc.sendEvent({ type: 'response.create' });
+        }, 200);
     }, 200);
   }, [isRecording, webrtc, log]);
 
