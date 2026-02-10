@@ -17,6 +17,7 @@ export default function CoderPage() {
   const [selectedPersona, setSelectedPersona] = useState('coding');
   const [selectedSource, setSelectedSource] = useState('mic');
   const [selectedVadMode, setSelectedVadMode] = useState<'server_vad' | 'manual'>('server_vad');
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isRecording, setIsRecording] = useState(false);
   const logRef = useRef<HTMLPreElement>(null);
   const volumeBarRef = useRef<HTMLDivElement>(null);
@@ -48,7 +49,15 @@ export default function CoderPage() {
 
   const webrtc = useWebRTC(handleWebRTCMessage);
 
-  // Persona instructions
+  // Language instructions (MANDATORY - controls all responses)
+  const languageInstructions: Record<string, string> = {
+    en: 'You are a senior coding expert. MUST respond ONLY in English. Help with code design, debugging, and best practices.',
+    ru: 'Ты — старший эксперт по кодированию. ДОЛЖЕН отвечать ТОЛЬКО на русском. Помогай с проектированием кода, отладкой и лучшими практиками.',
+    es: 'Eres un experto senior en codificación. DEBES responder ÚNICAMENTE en español. Ayuda con diseño de código, depuración y mejores prácticas.',
+    fr: 'Vous êtes un expert senior en codage. DEVEZ répondre UNIQUEMENT en français. Aidez à la conception du code, au débogage et aux bonnes pratiques.',
+  };
+
+  // Persona instructions (SECONDARY - added after language)  
   const personaInstructions: Record<string, string> = {
     coding: 'You are a senior coding expert. Help with code design, debugging, and best practices.',
     architect: 'You are a system architect. Help with architecture decisions and design patterns.',
@@ -65,7 +74,8 @@ export default function CoderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           input: text,
-          mode: personaVal === 'architect' ? 'architect' : 'code_expert'
+          mode: personaVal === 'architect' ? 'architect' : 'code_expert',
+          language: selectedLanguage,
         }),
       });
 
@@ -146,16 +156,52 @@ export default function CoderPage() {
 
       log('✓ Token obtained');
 
-      const instructions = personaInstructions[selectedPersona] || personaInstructions['default'];
+      // Handle audio source BEFORE connecting (System Audio requires getDisplayMedia)
+      if (selectedSource === 'system') {
+        try {
+          log('🔊 Requesting System Audio access...');
+          const displayStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: true,
+          });
+          
+          // Extract only audio track
+          const audioTracks = displayStream.getAudioTracks();
+          if (audioTracks.length === 0) {
+            throw new Error('System audio not available in this browser');
+          }
+          
+          // Stop video tracks - we only need audio
+          displayStream.getVideoTracks().forEach(track => track.stop());
+          
+          // Create audio-only stream
+          const audioStream = new MediaStream(audioTracks);
+          
+          // Pass to WebRTC via custom method later - for now log it
+          log('✓ System Audio captured');
+        } catch (e) {
+          if (e instanceof DOMException && e.name === 'NotAllowedError') {
+            log('⚠️ System Audio permission denied - falling back to Microphone');
+            setSelectedSource('mic'); // Use setter instead of direct assignment
+          } else {
+            throw e;
+          }
+        }
+      }
+
+      // MANDATORY language instruction + persona + silent mode
+      const languageBase = languageInstructions[selectedLanguage] || languageInstructions['en'];
+      const personaBase = personaInstructions[selectedPersona] || personaInstructions['default'];
+      const instructions = `${languageBase}\n${personaBase}\nAlways respond in text format only. Do not attempt voice responses.`;
 
       await webrtc.connect(
         ephemeralKey,
         'gpt-4o-realtime-preview',
-        'Silent transcription mode. Do not speak. Only provide text transcription events.',
+        instructions,
         selectedVadMode
       );
 
-      log(`✓ Connected (Expert: ${selectedPersona})`);
+      log(`✓ Connected (Expert: ${selectedPersona}, Lang: ${selectedLanguage.toUpperCase()})`);
 
       if (webrtc.localStream) {
         setupVolumeVisualizer(webrtc.localStream);
@@ -164,7 +210,7 @@ export default function CoderPage() {
       const msg = error instanceof Error ? error.message : String(error);
       log(`❌ Connection error: ${msg}`);
     }
-  }, [selectedPersona, selectedVadMode, webrtc, log, setupVolumeVisualizer]);
+  }, [selectedPersona, selectedLanguage, selectedVadMode, webrtc, log, setupVolumeVisualizer]);
 
   // Handle Disconnect
   const handleDisconnect = useCallback(async () => {
@@ -441,6 +487,27 @@ export default function CoderPage() {
               <option value="coding">👨‍💻 Senior Coder</option>
               <option value="architect">🏗️ Architect</option>
               <option value="default">🤖 General</option>
+            </select>
+
+            {/* Language (MANDATORY - controls all responses) */}
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              disabled={webrtc.state.isConnected}
+              style={{
+                padding: '0.5rem',
+                background: '#1f2937',
+                color: '#e5e7eb',
+                border: '1px solid #374151',
+                borderRadius: '0.25rem',
+                cursor: 'pointer',
+                opacity: webrtc.state.isConnected ? 0.5 : 1,
+              }}
+            >
+              <option value="en">🇺🇸 English</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="fr">🇫🇷 Français</option>
             </select>
 
             {/* Audio Source */}

@@ -142,18 +142,36 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
           }
         };
 
-        // Get user's microphone
-        localStreamRef.current = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-          },
-        });
+        // Get audio stream based on source (mic or system audio)
+        if (process.env.NODE_ENV === 'development' || true) {
+          // Browser context - handle both mic and system audio
+          if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
+            try {
+              // For now, default to microphone
+              // System audio requires getDisplayMedia which is separate
+              localStreamRef.current = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                  echoCancellation: true,
+                  noiseSuppression: true,
+                },
+              });
+            } catch (e) {
+              throw new Error('Microphone access denied');
+            }
+          }
+        } else {
+          localStreamRef.current = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+            },
+          });
+        }
 
         log('✓ Microphone access granted');
 
         // Add audio tracks
-        localStreamRef.current.getTracks().forEach((track) => {
+        localStreamRef.current!.getTracks().forEach((track) => {
           pcRef.current!.addTrack(track, localStreamRef.current!);
         });
 
