@@ -175,9 +175,8 @@ export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
 
           // Send session config
           const sessionConfig: any = {
-            modalities: ['text', 'audio'],
+            modalities: ['text'],
             instructions,
-            voice: 'alloy',
             input_audio_transcription: { model: 'whisper-1' },
             turn_detection: vadMode === 'server_vad' ? { type: 'server_vad' } : null,
           };
