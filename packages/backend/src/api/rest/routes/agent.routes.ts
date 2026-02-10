@@ -407,5 +407,63 @@ export async function registerAgentRoutes(fastify: FastifyInstance) {
     }
   });
 
+  /**
+   * POST /api/agent/workflow
+   * Execute agent workflow (used by Coder Expert)
+   *
+   * Request body:
+   * {
+   *   "input": "user question",
+   *   "mode": "code_expert" | "architect" | "conversation"
+   * }
+   *
+   * Response:
+   * {
+   *   "output": "agent response",
+   *   "success": true
+   * }
+   */
+  fastify.post<{
+    Body: {
+      input: string;
+      mode?: 'code_expert' | 'architect' | 'conversation';
+    };
+  }>('/api/agent/workflow', async (request, reply) => {
+    try {
+      const { input, mode = 'code_expert' } = request.body;
+
+      if (!input || !input.trim()) {
+        return reply.code(400).send({
+          success: false,
+          error: 'Input is required',
+        });
+      }
+
+      // Create or get an agent conversation
+      const conversationId = `conv-${Date.now()}`;
+      let agentState = AgentFactory.createAgent(conversationId);
+
+      // Execute workflow with the input
+      const result = await executeAgentWorkflow(agentState, input);
+
+      // Update agent state
+      AgentFactory.updateAgent(conversationId, result.state);
+
+      return reply.code(200).send({
+        success: true,
+        output: result.response,
+        decision: result.decision,
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      fastify.log.error({ error }, 'Agent workflow failed');
+      return reply.code(500).send({
+        success: false,
+        error: errorMsg || 'Workflow execution failed',
+      });
+    }
+  });
+
   fastify.log.info('Agent routes registered');
 }

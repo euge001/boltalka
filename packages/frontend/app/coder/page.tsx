@@ -12,7 +12,6 @@ interface ChatMessage {
 }
 
 export default function CoderPage() {
-  const webrtc = useWebRTC();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [textInput, setTextInput] = useState('');
   const [selectedPersona, setSelectedPersona] = useState('coding');
@@ -24,13 +23,6 @@ export default function CoderPage() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyzerRef = useRef<AnalyserNode | null>(null);
 
-  // Persona instructions
-  const personaInstructions: Record<string, string> = {
-    coding: 'You are a senior coding expert. Help with code design, debugging, and best practices.',
-    architect: 'You are a system architect. Help with architecture decisions and design patterns.',
-    default: 'You are a helpful programming assistant. Provide clear, concise solutions.',
-  };
-
   const log = useCallback((message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     const logLine = `[${timestamp}] ${message}\n`;
@@ -39,6 +31,56 @@ export default function CoderPage() {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, []);
+
+  const handleWebRTCMessage = useCallback(async (msg: any) => {
+    if (msg.type === 'conversation.item.input_audio_transcription.completed') {
+      const text = (msg.transcript || '').trim();
+      if (text) {
+        log(`🎤 Recognized: ${text}`);
+        const now = new Date().toLocaleTimeString();
+        setMessages((prev) => [...prev, { id: `${Date.now()}`, role: 'user', text, timestamp: now }]);
+        
+        // Use REST/LangGraph for long thought answers like legacy chat.php
+        await getExpertResponse(text);
+      }
+    }
+  }, [log]);
+
+  const webrtc = useWebRTC(handleWebRTCMessage);
+
+  // Persona instructions
+  const personaInstructions: Record<string, string> = {
+    coding: 'You are a senior coding expert. Help with code design, debugging, and best practices.',
+    architect: 'You are a system architect. Help with architecture decisions and design patterns.',
+    default: 'You are a helpful programming assistant. Provide clear, concise solutions.',
+  };
+
+  const getExpertResponse = async (text: string) => {
+    try {
+      log('🧠 Expert is thinking...');
+      const personaVal = selectedPersona;
+      
+      const res = await fetch('http://localhost:3002/api/agent/workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          input: text,
+          mode: personaVal === 'architect' ? 'architect' : 'code_expert'
+        }),
+      });
+
+      if (!res.ok) throw new Error('Backend workflow failed');
+      
+      const data = await res.json();
+      const answer = data.output || 'No response.';
+      
+      const now = new Date().toLocaleTimeString();
+      setMessages((prev) => [...prev, { id: `${Date.now()}`, role: 'assistant', text: answer, timestamp: now }]);
+      log('✓ Expert responded');
+    } catch (e) {
+      log(`❌ Expert error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
 
   // Visualize audio levels
   const setupVolumeVisualizer = useCallback((stream: MediaStream) => {
@@ -109,7 +151,7 @@ export default function CoderPage() {
       await webrtc.connect(
         ephemeralKey,
         'gpt-4o-realtime-preview',
-        instructions,
+        'Silent transcription mode. Do not speak. Only provide text transcription events.',
         selectedVadMode
       );
 
@@ -262,8 +304,8 @@ export default function CoderPage() {
         webrtc.sendEvent({
           type: 'session.update',
           session: {
-            modalities: ['text', 'audio'],
-            instructions,
+            modalities: ['text'],
+            instructions: 'Silent transcription mode. Do not speak. Only provide text transcription events.',
             voice: 'alloy',
             turn_detection: selectedVadMode === 'server_vad' ? { type: 'server_vad' } : null,
           },
@@ -288,8 +330,8 @@ export default function CoderPage() {
       webrtc.sendEvent({
         type: 'session.update',
         session: {
-          modalities: ['text', 'audio'],
-          instructions: personaInstructions[selectedPersona],
+          modalities: ['text'],
+          instructions: 'Silent transcription mode. Do not speak. Only provide text transcription events.',
           voice: 'alloy',
           turn_detection: newMode === 'server_vad' ? { type: 'server_vad' } : null,
         },

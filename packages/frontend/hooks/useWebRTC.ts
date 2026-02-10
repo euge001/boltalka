@@ -26,7 +26,7 @@ export interface UseWebRTCReturn {
   setMicEnabled: (enabled: boolean) => void;
 }
 
-export function useWebRTC(): UseWebRTCReturn {
+export function useWebRTC(onMessage?: (event: any) => void): UseWebRTCReturn {
   const [state, setState] = useState<WebRTCState>({
     isConnected: false,
     isConnecting: false,
@@ -61,6 +61,11 @@ export function useWebRTC(): UseWebRTCReturn {
     try {
       const msg = JSON.parse(event.data);
       
+      // Call external handler if provided
+      if (onMessage) {
+        onMessage(msg);
+      }
+
       // Log important events
       if (msg.type === 'error') {
         log('❌ ERROR', msg.error);
@@ -83,7 +88,7 @@ export function useWebRTC(): UseWebRTCReturn {
     } catch (e) {
       log('Failed to parse datachannel message', e);
     }
-  }, [log]);
+  }, [log, onMessage]);
 
   const sendEvent = useCallback((event: WebRTCEvent) => {
     if (!dcRef.current || dcRef.current.readyState !== 'open') {
