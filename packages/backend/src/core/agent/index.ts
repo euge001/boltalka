@@ -3,8 +3,6 @@
  *
  * Exports all agent functionality and provides
  * agent factory for creating conversation agents.
- *
- * Day 6: LangGraph Agents
  */
 
 import { AgentState, createInitialState } from './state';

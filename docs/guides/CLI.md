@@ -75,8 +75,8 @@ The Boltalka AI Platform provides a unified CLI command for managing the entire 
 ```bash
 ./run git:status
 # Output: Latest commits:
-#         9b02864 feat: Day 7 - Langfuse observability
-#         d409d58 feat: Day 6 - LangGraph agents
+#         9b02864 feat: Langfuse observability
+#         d409d58 feat: LangGraph agents
 #         ...
 ```
 

@@ -1,6 +1,6 @@
 # Boltalka AI Platform - Quick Start Guide
 
-**Status:** ✅ Production Ready (Day 7 Complete)  
+**Status:** ✅ Production Ready  
 **Last Updated:** February 9, 2026
 
 ## 📋 Table of Contents
@@ -27,7 +27,7 @@ Boltalka is a **production-ready AI platform** with:
 - 🐳 **containerized** - Docker & Docker Compose for easy deployment
 - ✅ **Fully Tested** - 199 tests with 100% pass rate
 
-Built over 7 days with enterprise-grade infrastructure.
+Built with enterprise-grade infrastructure.
 
 ---
 
@@ -59,7 +59,7 @@ cd /var/www/html/Boltalka-Node
 ### 2. Check system status
 ```bash
 ./run version
-# Shows: Node, Docker, 7 complete days of development
+# Shows: Node, Docker, and system information
 ```
 
 ### 3. Run all tests
@@ -221,7 +221,7 @@ git push origin master
 # - main.test.ts (9 tests)
 # - fastify.test.ts (8 tests)
 # - health.test.ts (6 tests)
-# - langfuse.test.ts (22 tests) ← NEW (Day 7)
+# - langfuse.test.ts (22 tests)
 # - agent.test.ts (32 tests)
 ```
 
@@ -300,32 +300,22 @@ psql -h localhost -U boltalka -d boltalka_dev
 
 ### Complete Guides
 
-1. **[CLI.md](./CLI.md)** ← You are here
+1. **[CLI.md](./CLI.md)**
    - Complete CLI command reference
    - Examples and troubleshooting
 
-2. **[DAY7_REPORT.md](./DAY7_REPORT.md)**
-   - Day 7: Langfuse observability integration
-   - Architecture overview
-   - Complete implementation details
+2. **[Architecture](../architecture/ARCHITECTURE.md)**
+   - System architecture overview
+   - Tech stack and component interaction
+   - Data flow and design patterns
 
-3. **[DAY6_REPORT.md](./DAY6_REPORT.md)**
-   - Day 6: LangGraph agent system
-   - Multi-turn conversation workflow
-   - 32 tests with agents
-
-4. **[DAY5_REPORT.md](./DAY5_REPORT.md)**
-   - Day 5: LangChain LLM chains
-   - Conversation & code expert chains
-   - 14 tests for chain execution
-
-5. **[DOCKER.md](./DOCKER.md)**
+3. **[Docker](./DOCKER.md)**
    - Docker configuration guide
    - Docker Compose services
    - Container management
 
-6. **[MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)**
-   - Migration from old architecture
+4. **[Migration](../architecture/MIGRATION_GUIDE.md)**
+   - Migration from legacy architecture
    - Breaking changes
    - Upgrade instructions
 
@@ -526,4 +516,4 @@ npm install              # Reinstall dependencies
 
 ---
 
-*Generated: February 9, 2026 | Status: Complete (Day 7)*
+*Last Updated: February 9, 2026*

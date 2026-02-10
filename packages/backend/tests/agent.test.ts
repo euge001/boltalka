@@ -3,8 +3,6 @@
  *
  * Test suite for multi-turn conversation agents
  * Covers: state management, workflow execution, tool integration
- *
- * Day 6: LangGraph Agents
  */
 
 import {

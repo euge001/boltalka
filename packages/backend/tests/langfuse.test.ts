@@ -2,8 +2,6 @@
  * Langfuse Integration Tests
  *
  * Test suite for LLM observability and tracing configuration
- *
- * Day 7: Langfuse Integration
  */
 
 import {

@@ -10,7 +10,6 @@ This is a **pnpm monorepo** with clean separation of concerns following modern b
 
 ### **Monorepo Configuration**
 ```
-pnpm-workspace.yaml       # pnpm workspaces definition
 package.json             # Root workspace package config
 pnpm-lock.yaml          # Dependency lock file (pnpm)
 turbo.json              # Turborepo build orchestration
@@ -52,24 +51,28 @@ run                    # Unified CLI for advanced operations
 
 ## ✅ What's NOT in Root (and Why)
 
-### **❌ Removed Files**
+### **❌ Removed Files (Legacy)**
 
-| File | Reason | Alternative |
-|------|--------|-------------|
-| `start.sh` | Old Docker-based startup | Use `start-all.sh` (native) |
-| `quick-start.sh` | Duplicate Docker quick start | Use `start-all.sh` |
-| `package-lock.json` | npm lock file | Using pnpm (pnpm-lock.yaml) |
-| `jest.config.js` | Root test config | Tests in `packages/*/tests/` |
-| `.env` | Live env file exposed to git | Use `.env.example` only |
-| `manifest.webmanifest` | Legacy PWA manifest | Not used in current build |
+| File | Reason |
+|------|--------|
+| `pnpm-workspace.yaml` | Redundant with package.json workspaces |
+| `pnpm-lock.yaml` (old) | Replaced by clean pnpm install |
+| `start.sh` | Old Docker-based startup (use start-all.sh) |
+| `*.php` | Legacy PHP interface files |
+| `manifest.webmanifest` | Legacy PWA manifest |
+| `tests/` (root) | Replaced by package-level tests |
+| `legacy/` | Archived old codebase |
+| `docs/reports/` | Development period logs |
+| `docs/plans/` | Transitionary plans |
 
-### **📁 Moved Directories**
+### **📁 Active Directories**
 
-| Directory | Moved To | Reason |
-|-----------|----------|--------|
-| `tests/` | `docs/archived/legacy_tests/` | Old root tests, real ones in `packages/` |
-| `coverage/` | `.gitignore_artifacts/` | Build artifacts, should not commit |
-| `.env.docker` | `infra/.env.docker` | Docker-specific config belongs in infra/ |
+| Directory | Purpose |
+|-----------|----------|
+| `packages/` | Monorepo source code |
+| `docs/` | System documentation |
+| `infra/` | Infrastructure & Docker configs |
+| `.github/` | CI/CD workflows |
 
 ---
 
@@ -93,10 +96,7 @@ Each package has:
 ```
 docs/
 ├── architecture/   # System design docs
-├── guides/        # User guides & quickstarts
-├── plans/         # Development roadmaps
-├── reports/       # Session/day reports
-└── archived/      # Old docs & legacy tests
+└── guides/        # User guides & quickstarts
 ```
 
 ### **`infra/`** — Infrastructure & DevOps

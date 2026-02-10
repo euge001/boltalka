@@ -3,8 +3,6 @@
  *
  * Centralizes all LLM chain creation and configuration.
  * Integrates with Langfuse for observability and evaluation.
- *
- * Day 5: LangChain Integration
  */
 
 import {

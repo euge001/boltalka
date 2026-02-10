@@ -114,20 +114,11 @@ EOF
 
 cmd_version() {
   print_header "Boltalka AI Platform - Version Information"
-  echo "Project Version: 7.0.0"
+  echo "Project Version: 2.0.0"
   echo "Build Date: February 9, 2026"
   echo "Node Version: $(node --version)"
   echo "Docker Version: $(docker --version)"
   echo "Docker Compose Version: $(docker-compose --version)"
-  echo ""
-  echo "Days Complete: 7/7"
-  echo "  Day 1: Monorepo scaffold ✓"
-  echo "  Day 2: Backend infrastructure ✓"
-  echo "  Day 3: Frontend infrastructure ✓"
-  echo "  Day 4: Docker containerization ✓"
-  echo "  Day 5: LangChain LLM chains ✓"
-  echo "  Day 6: LangGraph agents ✓"
-  echo "  Day 7: Langfuse observability ✓"
   echo ""
 }
 
@@ -343,13 +334,9 @@ cmd_docs() {
   print_header "Documentation Files"
   
   DOCS=(
-    "DAY1_REPORT.md:Day 1 - Monorepo Setup"
-    "DAY5_REPORT.md:Day 5 - LangChain LLM Chains"
-    "DAY6_REPORT.md:Day 6 - LangGraph Agents"
-    "DAY7_REPORT.md:Day 7 - Langfuse Observability"
     "README.md:Project Overview"
-    "MIGRATION_GUIDE.md:Migration Guide"
-    "DOCKER.md:Docker Setup Guide"
+    "docs/guides/QUICKSTART.md:Quick Start Guide"
+    "docs/architecture/ARCHITECTURE.md:System Architecture"
   )
   
   for doc in "${DOCS[@]}"; do
@@ -360,7 +347,7 @@ cmd_docs() {
     fi
   done
   
-  print_info "Open documentation with: cat DAY7_REPORT.md | less"
+  print_info "Explore the /docs directory for comprehensive guides."
 }
 
 cmd_deploy_prepare() {

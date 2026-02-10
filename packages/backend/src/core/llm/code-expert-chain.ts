@@ -3,9 +3,6 @@
  *
  * This chain specializes in code generation, explanations, and debugging
  * based on voice input transcriptions.
- *
- * Day 5: LangChain Integration
- * Day 7: Langfuse Integration
  */
 
 import { ChatOpenAI } from '@langchain/openai';

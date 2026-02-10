@@ -1,8 +1,6 @@
 /**
  * LLM Routes
  * REST API endpoints for LLM chain execution
- *
- * Day 5: LangChain Integration
  */
 
 import { FastifyInstance } from 'fastify';

@@ -3,8 +3,6 @@
  *
  * Defines the state structure for multi-turn conversations
  * with LangGraph agents.
- *
- * Day 6: LangGraph Agents
  */
 
 /**

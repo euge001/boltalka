@@ -1,8 +1,6 @@
 /**
  * Agent Routes
  * REST API endpoints for multi-turn conversation agents
- *
- * Day 6: LangGraph Agents
  */
 
 import { FastifyInstance } from 'fastify';

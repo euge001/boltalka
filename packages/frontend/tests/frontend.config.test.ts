@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
-describe('Frontend Configuration (Day 1)', () => {
+describe('Frontend Configuration', () => {
   const frontendDir = process.cwd();
 
   describe('Frontend Directory Structure', () => {

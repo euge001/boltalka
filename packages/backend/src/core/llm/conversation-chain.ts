@@ -3,9 +3,6 @@
  *
  * This chain handles bi-directional voice conversations with memory,
  * context understanding, and natural language generation.
- *
- * Day 5: LangChain Integration
- * Day 7: Langfuse Integration
  */
 
 import { ChatOpenAI } from '@langchain/openai';

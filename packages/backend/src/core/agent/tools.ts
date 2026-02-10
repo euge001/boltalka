@@ -3,8 +3,6 @@
  *
  * Tools that agents can use to enhance responses
  * Integration points for external services.
- *
- * Day 6: LangGraph Agents
  */
 
 import { AgentTool } from './state';

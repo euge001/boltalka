@@ -1,6 +1,5 @@
 /**
  * LLM Chains Tests
- * Day 5: LangChain Integration
  */
 
 describe('LLM Chains', () => {

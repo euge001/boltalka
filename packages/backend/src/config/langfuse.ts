@@ -3,8 +3,6 @@
  *
  * Configures Langfuse for LLM observability, cost tracking,
  * and conversation monitoring.
- *
- * Day 7: Langfuse Integration
  */
 
 import { Langfuse } from 'langfuse';

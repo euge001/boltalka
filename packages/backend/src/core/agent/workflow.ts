@@ -3,9 +3,6 @@
  *
  * Implements LangGraph patterns for multi-turn conversations
  * with mode switching and tool integration.
- *
- * Day 6: LangGraph Agents
- * Day 7: Langfuse Integration
  */
 
 import { AgentState, AgentMessage, AgentDecision, addMessage, updateMode, endConversation } from './state';

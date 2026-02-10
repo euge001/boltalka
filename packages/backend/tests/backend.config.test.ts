@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-describe('Backend Configuration (Day 1)', () => {
+describe('Backend Configuration', () => {
   const backendDir = process.cwd();
 
   describe('Backend Directory Structure', () => {
