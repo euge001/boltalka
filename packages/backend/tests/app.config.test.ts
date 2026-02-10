@@ -29,7 +29,7 @@ describe('Backend - App Configuration', () => {
         host: '0.0.0.0',
         port: 3000,
         nodeEnv: 'development',
-        corsOrigin: 'http://localhost:3001',
+        corsOrigin: '*',
         jwtSecret: 'dev-secret-key-change-in-production',
         databaseUrl: 'postgresql://localhost/boltalka',
         logLevel: 'info',
