@@ -47,8 +47,8 @@ COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
 COPY --from=builder /app/packages/backend/prisma ./packages/backend/prisma
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
-# Set working directory to backend
-WORKDIR /app/packages/backend
+# Return to app root for CMD execution
+WORKDIR /app
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
@@ -56,4 +56,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "packages/backend/dist/main.js"]
