@@ -1,5 +1,5 @@
 # Build stage
-# Force rebuild: 2026-02-13T12:42
+# Force rebuild: 2026-02-13T12:45
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -60,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["node", "/app/packages/backend/dist/main.js"]
+CMD ["pnpm", "--filter", "@boltalka/backend", "start"]
