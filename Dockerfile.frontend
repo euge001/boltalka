@@ -52,4 +52,5 @@ WORKDIR /app/packages/frontend
 
 EXPOSE 3001
 
-CMD ["pnpm", "start"]
+# Force next to listen on the exposed port
+CMD ["pnpm", "start", "-p", "3001"]
