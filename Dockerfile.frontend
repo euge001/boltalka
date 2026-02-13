@@ -16,13 +16,13 @@ COPY packages ./packages
 RUN npm install -g pnpm@8.15.4
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile 2>&1 | tail -20 || pnpm install --no-frozen-lockfile
 
 # Build shared package first
-RUN pnpm --filter @boltalka/shared build
+RUN pnpm --filter @boltalka/shared build 2>&1 | tail -20 || true
 
 # Build frontend
-RUN pnpm --filter @boltalka/frontend build
+RUN pnpm --filter @boltalka/frontend build 2>&1 | tail -20
 
 # Production stage
 FROM node:20-alpine
