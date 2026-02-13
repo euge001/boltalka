@@ -52,7 +52,7 @@ COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 RUN pnpm --filter @boltalka/backend prisma generate
 
 # Return to app root for CMD execution
-WORKDIR /app/packages/backend
+WORKDIR /app
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
@@ -60,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "/app/packages/backend/dist/main.js"]

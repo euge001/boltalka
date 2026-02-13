@@ -4,7 +4,7 @@
     "builder": "dockerfile"
   },
   "deploy": {
-    "startCommand": "node dist/main.js",
+    "startCommand": "node /app/packages/backend/dist/main.js",
     "restartPolicyType": "on_failure",
     "restartPolicyMaxRetries": 5,
     "port": 3000,
