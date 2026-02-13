@@ -265,7 +265,7 @@ echo "Backend on $BACKEND_PORT, Frontend on $FRONTEND_PORT"
 | LangGraph Agents | ✅ Functional | Multi-turn conversations |
 | Chat UI | ✅ Ready | Dark theme, all selectors |
 | Coder UI | ✅ Ready | Legacy-compatible design |
-| Auth System | ❌ Removed | (not in Days 1-7) |
+| Auth System | ❌ Removed | Legacy feature, not required |
 | Langfuse | ⏸️ Disabled | (for dev mode) |
 
 ---
@@ -350,7 +350,7 @@ BACKEND_PORT=3002 bash start-all.sh
 **Solution:** ✅ Applied legacy dark theme (#0b1220 bg, #e5e7eb text)
 
 ### Problem: Auth system not working
-**Solution:** ✅ Removed completely (not in Days 1-7)
+**Solution:** ✅ Removed completely (legacy feature)
 
 ### Problem: TypeScript ref type mismatch
 **Solution:** ✅ Changed useRef<HTMLDivElement> → useRef<HTMLPreElement>

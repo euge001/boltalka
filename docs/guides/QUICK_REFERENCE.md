@@ -97,11 +97,11 @@ PORT=3005 npm run dev
 - NO authentication barriers
 - NO broken imports
 
-## Issues Fixed Today
+## Issues Fixed
 - ✅ Port conflicts (3000/3001/3002 → stable 3002/3005)
 - ✅ ES module errors (require → import in agent)
 - ✅ UI visibility (dark theme applied)
-- ✅ Authentication removed (Days 1-7 baseline)
+- ✅ Authentication removed (legacy feature)
 - ✅ TypeScript ref types (HTMLDivElement → HTMLPreElement)
 
 ## Next Session

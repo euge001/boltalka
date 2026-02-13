@@ -368,14 +368,10 @@ Boltalka-Node/
 │   │   └── package.json
 │   └── shared/            ← Shared types & utilities
 ├── docs/                  ← Documentation
-├── DAY*_REPORT.md        ← Phase reports
 └── README.md             ← Project overview
 ```
 
 ## Learn More
-
-- **[DAY1_REPORT.md](../DAY1_REPORT.md)** - Monorepo setup
-- **[DAY7_REPORT.md](../DAY7_REPORT.md)** - Complete system overview
 - **[DOCKER.md](../DOCKER.md)** - Docker deployment guide
 - **[MIGRATION_GUIDE.md](../MIGRATION_GUIDE.md)** - Migration from old architecture
 

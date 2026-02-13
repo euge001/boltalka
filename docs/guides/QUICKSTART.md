@@ -425,7 +425,6 @@ npm install              # Reinstall dependencies
 ## Project Statistics
 
 **Infrastructure:**
-- 7 days of development
 - 199 tests (100% passing)
 - 3 Docker services
 - 9 test suites
@@ -474,7 +473,7 @@ npm install              # Reinstall dependencies
 1. ✅ **Verify Setup:** `./run test:backend` (should show 129/129 passing)
 2. ✅ **Check Status:** `./run status` (shows overall system health)
 3. ✅ **View Logs:** `./run docker:logs` (watch services)
-4. 📖 **Read Docs:** `./run docs` or open DAY7_REPORT.md
+4. 📖 **Read Docs:** See documentation in `./docs`
 5. 🚀 **Deploy:** `./run deploy:prepare` (pre-deployment checks)
 
 ---
