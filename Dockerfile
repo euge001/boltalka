@@ -1,5 +1,5 @@
 # Build stage
-# Force rebuild: v5 (robust paths)
+# Force rebuild: v6 (absolute path CMD)
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -55,7 +55,10 @@ RUN pnpm --filter @boltalka/backend prisma generate
 RUN mkdir -p /app/packages/backend/packages/backend && \
     ln -s /app/packages/backend/dist /app/packages/backend/packages/backend/dist
 
-# Return to app root for CMD execution
+# Ensure the file exists where we expect it
+RUN ls -la /app/packages/backend/dist/main.js
+
+# Return to app root
 WORKDIR /app
 
 # Health check
@@ -64,4 +67,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["node", "packages/backend/dist/main.js"]
+# Use absolute path to bypass any WORKDIR confusion in Railway
+CMD ["node", "/app/packages/backend/dist/main.js"]
