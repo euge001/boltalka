@@ -51,6 +51,10 @@ COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 # Generate prisma client
 RUN pnpm --filter @boltalka/backend prisma generate
 
+# Robust path fix: satisfy Railway's duplicated path search if it happens
+RUN mkdir -p /app/packages/backend/packages/backend && \
+    ln -s /app/packages/backend/dist /app/packages/backend/packages/backend/dist
+
 # Return to app root for CMD execution
 WORKDIR /app
 
@@ -60,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@boltalka/backend", "start"]
+CMD ["node", "packages/backend/dist/main.js"]
