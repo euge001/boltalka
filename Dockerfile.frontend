@@ -36,8 +36,8 @@ COPY pnpm-workspace.yaml ./
 COPY package.json ./
 
 # Copy packages structure
-COPY packages/frontend ./packages/frontend
-COPY packages/shared ./packages/shared
+COPY packages/frontend/package.json ./packages/frontend/
+COPY packages/shared/package.json ./packages/shared/
 
 # Install only production dependencies
 RUN pnpm install --frozen-lockfile --prod
@@ -45,7 +45,10 @@ RUN pnpm install --frozen-lockfile --prod
 # Copy built files from builder
 COPY --from=builder /app/packages/frontend/.next ./packages/frontend/.next
 COPY --from=builder /app/packages/frontend/public ./packages/frontend/public
+COPY --from=builder /app/packages/frontend/next.config.js ./packages/frontend/next.config.js
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+# Also copy the source/configs that might be needed at runtime
+COPY packages/frontend/app ./packages/frontend/app
 
 # Set working directory to frontend
 WORKDIR /app/packages/frontend
@@ -53,5 +56,5 @@ WORKDIR /app/packages/frontend
 EXPOSE 3001
 
 # Force next to listen on 0.0.0.0 and the exposed port
-# host 0.0.0.0 is critical for Docker containers to be reachable
-CMD ["pnpm", "start", "-p", "3001", "-H", "0.0.0.0"]
+# Use PORT env variable if available, fallback to 3001
+CMD ["sh", "-c", "pnpm start -p ${PORT:-3001} -H 0.0.0.0"]
