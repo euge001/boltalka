@@ -52,5 +52,6 @@ WORKDIR /app/packages/frontend
 
 EXPOSE 3001
 
-# Force next to listen on the exposed port
-CMD ["pnpm", "start", "-p", "3001"]
+# Force next to listen on 0.0.0.0 and the exposed port
+# host 0.0.0.0 is critical for Docker containers to be reachable
+CMD ["pnpm", "start", "-p", "3001", "-H", "0.0.0.0"]
