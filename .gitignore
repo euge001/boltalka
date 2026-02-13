@@ -10,7 +10,6 @@ coverage
 .DS_Store
 turbo
 .turbo
-pnpm-lock.yaml
 .idea
 .vscode/settings.json
 postgres_data
