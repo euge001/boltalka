@@ -60,6 +60,29 @@ export async function registerAgentRoutes(fastify: FastifyInstance) {
 
       const tokenData = await tokenResponse.json() as any;
 
+      // Trace session start in Langfuse
+      console.log('--- DEBUG: Initializing Langfuse Trace ---');
+      const { getLangfuseClient, flushLangfuse } = await import('../../../config/langfuse');
+      const langfuse = getLangfuseClient();
+      if (langfuse) {
+        console.log('--- DEBUG: Langfuse client found ---');
+        const trace = langfuse.trace({
+          id: `rt-${Date.now()}`,
+          name: 'realtime-session',
+          userId: 'web-user',
+          metadata: { model, action: 'token_generated' }
+        });
+        trace.event({
+          name: 'connection-established',
+          metadata: { model }
+        });
+        console.log('--- DEBUG: Event recorded, flushing... ---');
+        await flushLangfuse();
+        console.log('--- DEBUG: Flush complete ---');
+      } else {
+        console.log('--- DEBUG: Langfuse client NOT found ---');
+      }
+
       return reply.code(200).send({
         value: tokenData?.client_secret?.value || '',
         expires_at: tokenData?.expires_at || new Date(),
