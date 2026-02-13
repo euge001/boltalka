@@ -3,11 +3,15 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root config files
-COPY tsconfig.json ./
-COPY pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
+# Copy root config files individually
+COPY .dockerignore ./
 COPY package.json ./
+COPY tsconfig.json ./
+COPY turbo.json ./
+COPY pnpm-workspace.yaml ./
+
+# Copy lock file
+COPY pnpm-lock.yaml ./
 
 # Copy all packages
 COPY packages ./packages
