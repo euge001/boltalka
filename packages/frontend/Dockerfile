@@ -1,0 +1,58 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy root config files
+COPY tsconfig.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+
+# Copy all packages
+COPY packages ./packages
+
+# Install pnpm
+RUN npm install -g pnpm@8.15.4
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile 2>&1 | tail -20 || pnpm install --no-frozen-lockfile
+
+# Build shared package first
+RUN pnpm --filter @boltalka/shared build 2>&1 | tail -20 || true
+
+# Build frontend
+RUN pnpm --filter @boltalka/frontend build 2>&1 | tail -20
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@8.15.4
+
+# Copy root config files
+COPY tsconfig.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+
+# Copy packages structure
+COPY packages/frontend ./packages/frontend
+COPY packages/shared ./packages/shared
+
+# Install only production dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built files from builder
+COPY --from=builder /app/packages/frontend/.next ./packages/frontend/.next
+COPY --from=builder /app/packages/frontend/public ./packages/frontend/public
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+
+# Set working directory to frontend
+WORKDIR /app/packages/frontend
+
+EXPOSE 3001
+
+CMD ["pnpm", "start"]
