@@ -51,7 +51,11 @@ COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 # Generate prisma client
 RUN pnpm --filter @boltalka/backend prisma generate
 
-# Return to app root
+# Robust path fix: satisfy Railway's duplicated path search if it happens
+RUN mkdir -p /app/packages/backend/packages/backend && \
+    ln -s /app/packages/backend/dist /app/packages/backend/packages/backend/dist
+
+# Return to app root for CMD execution
 WORKDIR /app
 
 # Health check
@@ -60,8 +64,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 3000
 
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# Use absolute path to bypass any WORKDIR confusion in Railway
-CMD ["node", "/app/packages/backend/dist/main.js"]
+CMD ["node", "packages/backend/dist/main.js"]

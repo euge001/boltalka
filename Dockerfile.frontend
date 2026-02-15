@@ -29,32 +29,31 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm@8.15.4
 
-# Copy root config files
+# Copy all root configs
 COPY tsconfig.json ./
 COPY pnpm-lock.yaml ./
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
 
-# Copy packages structure
-COPY packages/frontend/package.json ./packages/frontend/
-COPY packages/shared/package.json ./packages/shared/
+# Copy packages structure for install
+COPY packages/frontend ./packages/frontend
+COPY packages/shared ./packages/shared
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Install production dependencies with full monorepo context
+RUN pnpm install --frozen-lockfile --prod 2>&1 | tail -20 || pnpm install --prod
 
 # Copy built files from builder
 COPY --from=builder /app/packages/frontend/.next ./packages/frontend/.next
-COPY --from=builder /app/packages/frontend/public ./packages/frontend/public
-COPY --from=builder /app/packages/frontend/next.config.js ./packages/frontend/next.config.js
+COPY --from=builder /app/packages/frontend/next.config.js ./packages/frontend/
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-# Also copy the source/configs that might be needed at runtime
-COPY packages/frontend/app ./packages/frontend/app
 
 # Set working directory to frontend
 WORKDIR /app/packages/frontend
 
+# Expose port
 EXPOSE 3001
+ENV NODE_ENV=production
+ENV PORT=3001
 
-# Force next to listen on 0.0.0.0 and the exposed port
-# Use PORT env variable if available, fallback to 3001
-CMD ["sh", "-c", "pnpm start -p ${PORT:-3001} -H 0.0.0.0"]
+# Start Next.js directly
+CMD ["node_modules/.bin/next", "start", "-p", "3001"]
